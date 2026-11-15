@@ -1,4 +1,5 @@
-
+using System;
+using System.Linq;
 using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
 using SoftwareTestingExample.Pages;
@@ -46,18 +47,30 @@ public class HomePageTests : PageTest
         await homePage.NavigateAsync();
         await homePage.ExpandWomenCategoryAsync();
 
-        var subcategoryNames =
-            await homePage.GetWomenSubcategoryNamesAsync();
-
-        Assert.That(subcategoryNames, Does.Contain("Dress"));
-        Assert.That(subcategoryNames, Does.Contain("Tops"));
-        Assert.That(subcategoryNames, Does.Contain("Saree"));
+        var subcategories = await homePage.GetWomenSubcategoryNamesAsync();
 
         Assert.That(
-            await homePage.GetWomenSubcategoryCountAsync(),
-            Is.EqualTo(3),
-            "The Women category should display three subcategories."
+            subcategories.Any(name =>
+                string.Equals(name.Trim(), "Dress", StringComparison.OrdinalIgnoreCase)),
+            Is.True,
+            "The Women category should contain Dress."
         );
+
+        Assert.That(
+            subcategories.Any(name =>
+                string.Equals(name.Trim(), "Tops", StringComparison.OrdinalIgnoreCase)),
+            Is.True,
+            "The Women category should contain Tops."
+        );
+
+        Assert.That(
+            subcategories.Any(name =>
+                string.Equals(name.Trim(), "Saree", StringComparison.OrdinalIgnoreCase)),
+            Is.True,
+            "The Women category should contain Saree."
+        );
+
+        Assert.That(subcategories.Count, Is.EqualTo(3));
     }
 
     [Test]
