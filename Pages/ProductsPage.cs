@@ -1,5 +1,6 @@
 
 using Microsoft.Playwright;
+using SoftwareTestingExample.Utilities;
 
 namespace SoftwareTestingExample.Pages;
 
@@ -7,21 +8,18 @@ public class ProductsPage
 {
     private readonly IPage _page;
 
-    // Search elements
     private ILocator SearchInput =>
         _page.Locator("#search_product");
 
     private ILocator SearchButton =>
         _page.Locator("#submit_search");
 
-    // Search results
     private ILocator SearchedProductsHeading =>
         _page.GetByRole(
             AriaRole.Heading,
             new() { Name = "Searched Products" }
         );
 
-    // Product cards
     private ILocator ProductCards =>
         _page.Locator(".product-image-wrapper");
 
@@ -36,12 +34,27 @@ public class ProductsPage
         _page = page;
     }
 
-    // Navigate to the Products page
     public async Task NavigateAsync()
     {
-        await _page.GotoAsync(
-            "https://automationexercise.com/products"
+        var productsUrl = $"{TestConfig.BaseUrl.TrimEnd('/')}/products";
+
+        var response = await _page.GotoAsync(
+            productsUrl,
+            new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.DOMContentLoaded,
+                Timeout = 30000
+            }
         );
+
+        if (response is null ||
+            response.Status < 200 ||
+            response.Status >= 400)
+        {
+            throw new InvalidOperationException(
+                $"Products page navigation failed. HTTP status: {response?.Status}"
+            );
+        }
 
         await SearchInput.WaitForAsync(new()
         {
@@ -50,13 +63,9 @@ public class ProductsPage
         });
     }
 
-    // Verify search field visibility
-    public async Task<bool> IsSearchInputVisibleAsync()
-    {
-        return await SearchInput.IsVisibleAsync();
-    }
+    public async Task<bool> IsSearchInputVisibleAsync() =>
+        await SearchInput.IsVisibleAsync();
 
-    // Search using the magnifying-glass button
     public async Task SearchForProductAsync(string searchTerm)
     {
         await SearchInput.FillAsync(searchTerm);
@@ -69,27 +78,15 @@ public class ProductsPage
         });
     }
 
-    // Retrieve product names
-    public async Task<IReadOnlyList<string>> GetProductNamesAsync()
-    {
-        return await ProductNames.AllInnerTextsAsync();
-    }
+    public async Task<IReadOnlyList<string>> GetProductNamesAsync() =>
+        await ProductNames.AllInnerTextsAsync();
 
-    // Count displayed product cards
-    public async Task<int> GetProductCountAsync()
-    {
-        return await ProductCards.CountAsync();
-    }
+    public async Task<int> GetProductCountAsync() =>
+        await ProductCards.CountAsync();
 
-    // Retrieve product prices
-    public async Task<IReadOnlyList<string>> GetProductPricesAsync()
-    {
-        return await ProductPrices.AllInnerTextsAsync();
-    }
+    public async Task<IReadOnlyList<string>> GetProductPricesAsync() =>
+        await ProductPrices.AllInnerTextsAsync();
 
-    // Verify searched products heading
-    public async Task<bool> IsSearchedProductsHeadingVisibleAsync()
-    {
-        return await SearchedProductsHeading.IsVisibleAsync();
-    }
+    public async Task<bool> IsSearchedProductsHeadingVisibleAsync() =>
+        await SearchedProductsHeading.IsVisibleAsync();
 }

@@ -1,7 +1,8 @@
+
 using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
-using SoftwareTestingExample.Utilities;
 using SoftwareTestingExample.Pages;
+using SoftwareTestingExample.Utilities;
 
 namespace SoftwareTestingExample.Tests;
 
@@ -14,39 +15,48 @@ public class HomePageTests : PageTest
 
         await homePage.NavigateAsync();
 
-        var title = await homePage.GetPageTitleAsync();  //retrieves the page title.
-
-        Assert.That(title, Is.Not.Empty,
-            "Homepage should have a page title.");   //verifies that the homepage is not empty.
-    }
-
-    [Test]
-    public async Task TC02_SearchBoxIsVisible()
-    {
-        var homePage = new HomePage(Page);
-
-        await homePage.NavigateAsync();
+        var title = await homePage.GetPageTitleAsync();
 
         Assert.That(
-            await homePage.IsSearchBoxVisibleAsync(),
-            Is.True,
-            "Search box should be visible on the homepage."
+            title,
+            Is.Not.Empty,
+            "Homepage should have a page title."
         );
     }
 
     [Test]
-    public async Task TC03_CategoriesMenuOpensSuccessfully()
+    public async Task TC02_ProductsPageSearchBoxIsVisible()
+    {
+        var productsPage = new ProductsPage(Page);
+
+        await productsPage.NavigateAsync();
+
+        Assert.That(
+            await productsPage.IsSearchInputVisibleAsync(),
+            Is.True,
+            "Search box should be visible on the Products page."
+        );
+    }
+
+    [Test]
+    public async Task TC03_WomenCategoryExpandsSuccessfully()
     {
         var homePage = new HomePage(Page);
 
         await homePage.NavigateAsync();
+        await homePage.ExpandWomenCategoryAsync();
 
-        await homePage.OpenCategoriesMenuAsync();
+        var subcategoryNames =
+            await homePage.GetWomenSubcategoryNamesAsync();
+
+        Assert.That(subcategoryNames, Does.Contain("Dress"));
+        Assert.That(subcategoryNames, Does.Contain("Tops"));
+        Assert.That(subcategoryNames, Does.Contain("Saree"));
 
         Assert.That(
-            await homePage.IsCategoriesMenuExpandedAsync(),
-            Is.True,
-            "Categories menu should expand after clicking."
+            await homePage.GetWomenSubcategoryCountAsync(),
+            Is.EqualTo(3),
+            "The Women category should display three subcategories."
         );
     }
 
@@ -58,7 +68,9 @@ public class HomePageTests : PageTest
         await homePage.NavigateAsync();
 
         var expectedUrl = new Uri(TestConfig.BaseUrl).AbsoluteUri;
-        var actualUrl = new Uri(await homePage.GetCurrentUrlAsync()).AbsoluteUri;
+        var actualUrl = new Uri(
+            await homePage.GetCurrentUrlAsync()
+        ).AbsoluteUri;
 
         Assert.That(
             actualUrl,
@@ -74,7 +86,8 @@ public class HomePageTests : PageTest
 
         await homePage.NavigateAsync();
 
-        var productCount = await homePage.GetProductCardCountAsync();
+        var productCount =
+            await homePage.GetProductCardCountAsync();
 
         Assert.That(
             productCount,

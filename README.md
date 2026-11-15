@@ -1,25 +1,25 @@
-﻿# SoftwareTestingExample – Playwright NUnit Automation Framework
+﻿# SoftwareTestingExample2 – Playwright NUnit Automation Framework
 
-[![Playwright NUnit CI](https://github.com/huntersy/SoftwareTestingExample/actions/workflows/playwright.yml/badge.svg)](https://github.com/huntersy/SoftwareTestingExample/actions/workflows/playwright.yml)
+[![Playwright NUnit CI](https://github.com/huntersy/SoftwareTestingExample2/actions/workflows/playwright.yml/badge.svg)](https://github.com/huntersy/SoftwareTestingExample2/actions/workflows/playwright.yml)
 
-A C# UI test automation project demonstrating Playwright for .NET, NUnit, and the Page Object Model (POM). The tests target the Practice Software Testing application and cover homepage behavior, product search, product details, and product filtering.
+A C# browser automation project demonstrating Microsoft Playwright for .NET, NUnit, and the Page Object Model (POM). The framework tests the [Automation Exercise](https://automationexercise.com/) web application.
 
-**Repository:** https://github.com/huntersy/SoftwareTestingExample
+**Repository:** https://github.com/huntersy/SoftwareTestingExample2
 
-**Target application:** https://practicesoftwaretesting.com/
+**Target application:** https://automationexercise.com/
 
 ## Project overview
 
-This project demonstrates how to structure and maintain browser-based automated tests using:
+This project demonstrates maintainable browser-based test automation using:
 
 - C# and .NET 8
 - Microsoft Playwright for .NET
 - NUnit test framework
 - Page Object Model (POM)
 - Git and GitHub
-- GitHub Actions workflow configuration
+- GitHub Actions continuous integration
 
-The project emphasizes readable tests, reusable page objects, explicit assertions, configurable test environments, and CI workflow documentation.
+The framework separates test scenarios from page-specific interactions, uses reusable page objects, centralizes environment configuration, and validates application behavior through NUnit assertions.
 
 ## Technology stack
 
@@ -34,39 +34,31 @@ The project emphasizes readable tests, reusable page objects, explicit assertion
 | NUnit.Analyzers | 3.9.0 |
 | coverlet.collector | 6.0.0 |
 | Browser | Chromium |
-| IDE used during development | Visual Studio Code |
+| IDE | Visual Studio Code |
 | CI | GitHub Actions |
 
 ## Project structure
 
 ```text
-SoftwareTestingExample/
+SoftwareTestingExample2/
 │
 ├── .github/
 │   └── workflows/
 │       └── playwright.yml
 │
 ├── Pages/
-│   ├── BasePage.cs
-│   ├── CartPage.cs
-│   ├── CheckoutPage.cs
 │   ├── HomePage.cs
-│   ├── LoginPage.cs
-│   ├── ProductListingPage.cs
-│   ├── ProductPage.cs
-│   └── RegisterPage.cs
-│
-├── TestData/
-│   └── TestUsers.cs              # Placeholder
+│   ├── ProductsPage.cs
+│   └── ProductDetailsPage.cs
 │
 ├── Tests/
-│   ├── CheckoutTests.cs          # Placeholder
 │   ├── HomePageTests.cs
-│   ├── LoginTests.cs             # Placeholder
+│   ├── ProductSearchTests.cs
 │   ├── ProductDetailsTests.cs
 │   ├── ProductFilterTests.cs
-│   ├── ProductSearchTests.cs
-│   └── RegistrationTests.cs      # Placeholder
+│   ├── LoginTests.cs
+│   ├── RegistrationTests.cs
+│   └── CheckoutTests.cs
 │
 ├── Utilities/
 │   └── TestConfig.cs
@@ -76,54 +68,50 @@ SoftwareTestingExample/
 └── .gitignore
 ```
 
-The `CheckoutTests.cs`, `LoginTests.cs`, and `RegistrationTests.cs` files are currently placeholders. They do not contain implemented NUnit test cases and are not included in the implemented test count.
+The login, registration, and checkout test files are placeholders unless implemented with NUnit test methods. They are not included in the current implemented test count.
 
 ## Page Object Model design
 
-The project separates test scenarios from page-specific browser interactions.
+The framework separates test logic from browser interaction logic.
 
-- **Tests** contain the test steps and NUnit assertions.
-- **Pages** contain page locators and reusable methods for interacting with the application.
-- **Utilities** contain shared configuration, including the target base URL.
+- **Pages:** Store page locators and reusable actions.
+- **Tests:** Execute scenarios and perform assertions.
+- **Utilities:** Store shared configuration, including the target base URL.
 
-For example, `HomePage` owns the homepage locators and actions such as navigating, searching, opening the categories menu, and selecting a product. Test classes call those methods rather than repeating the locator definitions.
+The current page objects are:
 
-This separation makes tests easier to read and helps centralize maintenance when the application's UI changes.
+| Page object | Responsibility |
+|---|---|
+| `HomePage` | Homepage navigation, product display, and category interactions |
+| `ProductsPage` | Product search and search-result information |
+| `ProductDetailsPage` | Product name, category, price, availability, condition, and brand |
+
+This structure reduces duplicated locator definitions and makes application changes easier to maintain.
 
 ## Implemented test coverage
 
-There are currently **16 implemented NUnit test methods across four test classes**.
+The current implementation contains **12 NUnit test methods across four test classes**.
 
 | Test class | Count | Implemented scenarios |
 |---|---:|---|
-| `HomePageTests` | 5 | Homepage title is not empty; search box visibility; categories menu expansion; homepage URL; homepage product display |
-| `ProductSearchTests` | 5 | Matching Pliers search; no-match search; partial-name search; Hammer search; reported result count compared with displayed product count |
-| `ProductDetailsTests` | 5 | Open Pliers from homepage; product name; product price; product image visibility and load state; product description |
-| `ProductFilterTests` | 1 | ECO filter selection, non-empty filtered results, ECO badge count, and change from the initial product list |
-| **Total** | **16** | **Four test classes with implemented test methods** |
+| `HomePageTests` | 5 | Homepage title, Products page search-box visibility, Women category expansion, homepage URL, homepage product display |
+| `ProductSearchTests` | 5 | Matching search, no-match search, partial-name search, dress search, product count validation |
+| `ProductDetailsTests` | 1 | Open Blue Top from search results and verify product name |
+| `ProductFilterTests` | 1 | Navigate to Women Tops category and verify products are displayed |
+| **Total** | **12** | **Four test classes** |
 
 ### Test case identifiers
 
-The implemented methods use the following identifiers:
+- Homepage: `Homepage_ShouldLoadSuccessfully`, TC02–TC05
+- Product search: TC06–TC10
+- Product details: TC11
+- Product category: TC12
 
-- Homepage: `Homepage_ShouldLoadSuccessfully`, `TC02`, `TC03`, `TC04`, `TC05`
-- Search: `TC06` through `TC10`
-- Product details: `TC11` through `TC15`
-- Product filtering: `TC17`
+The identifiers describe the implemented scenarios. They do not imply that additional test cases have been completed.
 
-The current suite contains 16 implemented test methods. Test identifiers are not sequential; TC16 is not currently implemented, while `TC17` covers the eco-friendly product filter. Test identifiers are labels in method names; they do not indicate that every number in the sequence has a corresponding test.
+## Environment setup
 
-### Scope and rationale
-
-The 16 tests provide focused coverage of the main implemented user journeys: opening the homepage, searching for products, viewing a product, and applying the ECO filter. The goal is to demonstrate meaningful scenarios and maintainable automation rather than inflate the test count with repetitive cases.
-
-Some scenarios intentionally validate specific catalog data. For example, the current tests expect the Pliers price to be `12.01` and the Hammer search to return six products. Those assertions may need maintenance if the target application's catalog changes.
-
-The product-opening test (TC11) verifies that selecting a product navigates away from the homepage and that the resulting page displays a product name. The product-name test (TC12) separately verifies that the displayed product name is exactly "Pliers". These tests cover related functionality but have distinct verification objectives.
-
-## Install and use Playwright
-
-The following instructions use **Windows PowerShell** and the .NET 8 SDK.
+The following instructions use Windows PowerShell and the .NET 8 SDK.
 
 ### Prerequisites
 
@@ -131,32 +119,28 @@ Install:
 
 1. [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 2. [Git for Windows](https://git-scm.com/downloads)
-3. [Visual Studio Code](https://code.visualstudio.com/) or another C# development environment
+3. [Visual Studio Code](https://code.visualstudio.com/)
 
-Confirm that the .NET SDK is available:
+Verify the .NET installation:
 
 ```powershell
 dotnet --version
 ```
 
-The command should report an installed .NET 8 SDK version.
-
 ### 1. Clone the repository
 
 ```powershell
-git clone https://github.com/huntersy/SoftwareTestingExample.git
-cd SoftwareTestingExample
+git clone https://github.com/huntersy/SoftwareTestingExample2.git
+cd SoftwareTestingExample2
 ```
 
-### 2. Restore the NuGet packages
+### 2. Restore dependencies
 
 ```powershell
 dotnet restore
 ```
 
-This downloads the project dependencies declared in `SoftwareTestingExample.csproj`, including `Microsoft.Playwright.NUnit`, NUnit, and the .NET test SDK.
-
-**Package installation and browser installation are separate steps.** Restoring the NuGet package installs the Playwright .NET library; it does not, by itself, install the Chromium browser binary.
+This restores the NuGet packages declared in the project file.
 
 ### 3. Build the project
 
@@ -164,170 +148,145 @@ This downloads the project dependencies declared in `SoftwareTestingExample.cspr
 dotnet build
 ```
 
-The default build configuration is Debug. Building the project generates the Playwright browser installation script under the build output directory.
+### 4. Install Playwright Chromium
 
-### 4. Install the Chromium browser
-
-For the default Debug build, run:
+For a Debug build:
 
 ```powershell
 .\bin\Debug\net8.0\playwright.ps1 install chromium
 ```
 
-This downloads the Chromium browser build required by the installed Playwright version.
-
-If you build using Release configuration instead:
+For a Release build:
 
 ```powershell
 dotnet build --configuration Release
 .\bin\Release\net8.0\playwright.ps1 install chromium
 ```
 
-This project currently configures Chromium for browser execution. It does not currently configure Firefox or WebKit test runs.
-
-### 5. Run the NUnit test suite
+### 5. Run the tests
 
 ```powershell
 dotnet test
 ```
 
-This command builds the test project as needed and asks the .NET test platform to discover and execute the NUnit tests.
-
-To run a specific test method, use the NUnit test name in a filter. For example:
+Run a specific test:
 
 ```powershell
 dotnet test --filter "FullyQualifiedName~TC06_SearchReturnsMatchingProducts"
 ```
 
-To list discovered tests without executing them:
+List discovered tests:
 
 ```powershell
 dotnet test --list-tests
 ```
 
-### 6. Open the project in Visual Studio Code
+## Environment configuration
 
-From the repository directory:
-
-```powershell
-code .
-```
-
-You can inspect the page objects, test classes, project dependencies, and GitHub Actions workflow directly in the editor.
-
-## Configuring the target environment
-
-The target URL is configured in `Utilities/TestConfig.cs`:
-
-```csharp
-namespace SoftwareTestingExample.Utilities;
-
-public static class TestConfig
-{
-    public static string BaseUrl =>
-        Environment.GetEnvironmentVariable("BASE_URL")
-        ?? "https://practicesoftwaretesting.com/";
-}
-```
-
-By default, the tests navigate to:
+The target application URL is centralized in:
 
 ```text
-https://practicesoftwaretesting.com/
+Utilities/TestConfig.cs
 ```
 
-To provide a different target URL in PowerShell for the current terminal session:
+The default URL is:
+
+```text
+https://automationexercise.com/
+```
+
+The framework supports overriding the target through the `BASE_URL` environment variable.
+
+For example:
 
 ```powershell
 $env:BASE_URL = "https://your-authorized-test-environment.example"
 dotnet test
 ```
 
-The environment variable is read when `TestConfig.BaseUrl` is accessed. Use only an application and environment that you own or are authorized to test.
+The environment variable applies to the current PowerShell session.
 
-**Current implementation:** `TC04_HomepageUrlIsCorrect` compares the browser's current URL against `TestConfig.BaseUrl`. This allows the URL assertion to follow the configured target environment when the `BASE_URL` environment variable is supplied.
+Using a centralized URL makes it easier to change test environments without modifying individual page objects.
 
-## GitHub Actions workflow
+## GitHub Actions continuous integration
 
-The workflow is defined in:
+The workflow is located at:
 
 ```text
 .github/workflows/playwright.yml
 ```
 
-It is configured for manual execution through GitHub Actions using `workflow_dispatch`.
+It is configured to run on:
 
-The workflow does not automatically run when commits are pushed to `main` or when pull requests target `main`.
+- Pushes to `main`
+- Pull requests targeting `main`
+- Manual execution through `workflow_dispatch`
+
+The workflow performs these operations:
 
 1. Checks out the repository.
-2. Sets up .NET 8.
+2. Configures .NET 8.
 3. Restores NuGet dependencies.
 4. Builds the project in Release configuration.
 5. Installs Playwright Chromium.
-6. Runs the NUnit test suite.
-7. Uploads the TRX test-results file as a workflow artifact, even when the test step fails.
+6. Executes the NUnit tests.
+7. Uploads the TRX test-results artifact.
 
-The CI workflow uses the Release output path when installing Chromium:
+### CI validation
 
-```powershell
-.\bin\Release\net8.0\playwright.ps1 install chromium
-```
+The workflow has been committed to the repository. An earlier execution tested commit `58f6089`, before the current page-object and test corrections.
 
-### Current CI validation status
+That execution reported one passing test and eleven failures. The failure diagnostics included an outdated selector in the source revision executed by GitHub Actions.
 
-A previous GitHub Actions run successfully completed dependency restoration, compilation, and Chromium installation. The test execution step then failed before the application interface became available.
+The current local source has since been corrected and successfully compiled.
 
-The runner diagnostics recorded an HTTP `403` response and a page title of `Just a moment...` when requesting the public target website. The tests consequently timed out waiting for the homepage search field.
+**Current validation status:**
 
-This indicates that the hosted runner's request was denied or intercepted by a website security challenge. It does **not** establish that the 16 test assertions passed, and it does not establish that the individual test locators are incorrect. The tests could not proceed through their normal application interactions.
+| Validation | Status |
+|---|---|
+| Local project build | Successful; 0 warnings and 0 errors |
+| Current local NUnit execution | Not yet verified |
+| Updated source committed to GitHub | Pending |
+| Updated GitHub Actions test execution | Pending |
+| All 12 tests passing | Not yet demonstrated |
 
-**Status distinction:**
-- Project build: successful in the observed workflow.
-- Playwright Chromium installation: successful in the observed workflow.
-- NUnit execution against the public target: blocked before normal test interactions by the HTTP 403/security-challenge response.
-- All 16 tests passing in GitHub Actions: **not yet demonstrated**.
+A successful build confirms that the project compiles. It does not, by itself, prove that browser tests pass.
 
-Check the repository's [GitHub Actions runs](https://github.com/huntersy/SoftwareTestingExample/actions) for the latest status. CI results can change between runs.
+### Test execution restrictions
 
-### Authorization and hosted test execution
+The development computer has Windows Application Control restrictions that previously prevented local execution of the compiled test assembly. Windows security protections have intentionally been left enabled.
 
-The target application's repository supplies a restrictive license. The license text reviewed for this project permits private, internal, and non-commercial use, while restricting certain commercial, public-hosting, distribution, and third-party-service uses without prior written permission.
+GitHub Actions provides a hosted Windows runner for CI execution. The public target application's availability and any authorization requirements must be considered when using hosted automation.
 
-The scope of permission for automated execution from a third-party hosted CI runner should not be assumed. Obtain written authorization from the application owner before relying on GitHub-hosted automation against that application. A test environment that you own or are expressly authorized to use is the preferred long-term CI target.
-
-## Local execution note
-
-On the development computer used for this project, Windows Smart App Control blocked execution/loading of the locally built test assembly. Smart App Control was intentionally left enabled. This is a machine-specific execution restriction, not evidence that the project cannot run on a compatible development machine.
-
-The standard `dotnet test` instructions above describe the normal .NET test workflow. Do not disable Windows security protections merely to reproduce a test run.
+Use only an application and test environment that you own or are authorized to test.
 
 ## Current limitations
 
-- The implemented suite contains 16 test methods; the checkout, login, and registration test files are placeholders.
-- The current test coverage focuses on homepage, search, product details, and ECO filtering.
-- The current workflow installs and runs Chromium only.
-- Some assertions depend on current public catalog data, such as product price and search-result count.
-- The observed GitHub-hosted run was blocked before the application loaded; successful CI test execution has not yet been demonstrated.
-- The target application's license and authorization requirements must be resolved before using a hosted CI runner against it.
+- The implemented suite currently contains 12 test methods.
+- Login, registration, and checkout scenarios are not yet implemented.
+- Chromium is the configured browser for the current workflow.
+- Product-search and category assertions depend on the target application's current catalog and interface.
+- The latest local build succeeded, but the corrected suite still requires a new test execution.
+- Successful end-to-end CI execution has not yet been established for the corrected source revision.
 
 ## Potential future enhancements
 
-Subject to using an authorized test environment, potential next steps include:
+After the current suite is validated, possible improvements include:
 
-- Expand environment configuration to support additional test environments and execution settings.
-- Add cart and quantity validation scenarios.
-- Add login and registration scenarios.
-- Add checkout scenarios.
-- Add API-level tests and UI/API integration coverage.
-- Add Firefox and WebKit browser projects or CI matrix execution.
-- Publish richer test reports and retain Playwright traces or screenshots for failures.
-- Add test data management and reusable setup/teardown patterns.
+- Add login and registration test scenarios.
+- Add shopping cart and checkout coverage.
+- Add quantity and price validation.
+- Capture screenshots and Playwright traces on failure.
+- Add richer NUnit test reporting.
+- Introduce test data management.
+- Add Firefox and WebKit browser execution.
+- Expand API testing and UI/API integration coverage.
+- Improve test execution and reporting in GitHub Actions.
 
 ## Project objective
 
-This repository demonstrates practical QA automation skills through a C# Playwright NUnit framework using the Page Object Model. It documents the implemented test scope, environment configuration, browser setup, and the distinction between successful compilation and successful end-to-end execution.
+This repository demonstrates practical QA automation engineering using C#, Playwright, NUnit, and the Page Object Model.
 
-The project is intentionally transparent about current validation limitations. Test results should be reported only when the tests have actually executed and their outcomes have been verified.
+It showcases reusable automation components, structured test scenarios, environment configuration, version control, and continuous integration.
 
-
-
+The project distinguishes successful compilation from successful test execution and reports validation results based on actual test evidence.

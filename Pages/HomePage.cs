@@ -1,3 +1,4 @@
+
 using Microsoft.Playwright;
 using SoftwareTestingExample.Utilities;
 
@@ -7,281 +8,121 @@ public class HomePage
 {
     private readonly IPage _page;
 
-    // Locators. The locators are private because they are only used within the HomePage class. The names are unique so no comment is needed to explain what they are. 
-    private ILocator SearchBox =>
-        _page.Locator("[data-test='search-query']");
-
-    private ILocator CategoriesButton =>
-        _page.Locator("[data-test='nav-categories']");
-
     private ILocator ProductCards =>
-    _page.Locator("a[data-test^='product-']");
+        _page.Locator(".product-image-wrapper");
 
     private ILocator ProductNames =>
-    _page.Locator("[data-test='product-name']");
+        _page.Locator(".productinfo p");
 
-    //The text reporting how many products were found.
-    private ILocator SearchResultCount =>
-        _page.Locator("[data-test='search-result-count']");
+    private ILocator WomenCategoryLink =>
+        _page.Locator("a[href='#Women']");
 
-    // Locator for the "No products found" message
-    private ILocator NoProductsMessage =>
-        _page.GetByText("There are no products found.", new()
-        {
-            Exact = true
-        });
+    private ILocator WomenCategorySection =>
+        _page.Locator("#Women");
+
+    private ILocator WomenSubcategoryLinks =>
+        WomenCategorySection.Locator("a[href^='/category_products/']");
+
+    private ILocator WomenTopsLink =>
+        WomenCategorySection.Locator("a[href='/category_products/2']");
+
+    private ILocator AdvertisementClosePrompt =>
+        _page.Locator(".continue-prompt-text");
 
     public HomePage(IPage page)
     {
         _page = page;
     }
 
-
-
-
-
     public async Task NavigateAsync()
     {
-        // Navigate until the server response commits.
         var response = await _page.GotoAsync(
             TestConfig.BaseUrl,
             new PageGotoOptions
             {
-                WaitUntil = WaitUntilState.Commit,
+                WaitUntil = WaitUntilState.DOMContentLoaded,
                 Timeout = 30000
             }
         );
 
-        // Capture diagnostic information.
-        var status = response?.Status;
-        var pageTitle = await _page.TitleAsync();
-
-        Console.WriteLine("========== HOMEPAGE DIAGNOSTICS ==========");
-        Console.WriteLine($"HTTP Response Status: {status}");
-        Console.WriteLine($"Final URL: {_page.Url}");
-        Console.WriteLine($"Page Title: {pageTitle}");
-
-        try
-        {
-            var bodyText = await _page.Locator("body").InnerTextAsync();
-
-            var preview = bodyText.Substring(
-                0,
-                Math.Min(bodyText.Length, 1500)
-            );
-
-            Console.WriteLine("Page Body Preview:");
-            Console.WriteLine(preview);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"Unable to retrieve page body: {ex.Message}"
-            );
-        }
-
-        Console.WriteLine("==========================================");
-
-        // Stop immediately if the server returned an unsuccessful response.
-        if (status is null || status < 200 || status >= 400)
+        if (response is null ||
+            response.Status < 200 ||
+            response.Status >= 400)
         {
             throw new InvalidOperationException(
-                $"Homepage navigation failed. HTTP status: {status}. " +
-                $"Page title: {pageTitle}. URL: {_page.Url}"
+                $"Homepage navigation failed. HTTP status: {response?.Status}"
             );
         }
 
-        // Wait for the homepage search box.
-        await SearchBox.WaitForAsync(new()
+        await ProductCards.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
             Timeout = 30000
         });
     }
 
+    public async Task<string> GetPageTitleAsync() =>
+        await _page.TitleAsync();
 
+    public Task<string> GetCurrentUrlAsync() =>
+        Task.FromResult(_page.Url);
 
-
-    // Retrieve homepage title
-    public async Task<string> GetPageTitleAsync()       // Retrieves the title of the current page
-    {
-        return await _page.TitleAsync();
-    }
-
-   public Task<string> GetCurrentUrlAsync()     // Retrieves the current URL of the page
-    {
-        return Task.FromResult(_page.Url);
-    }
-
-    // Search for a product
-    public async Task SearchForProductAsync(string searchTerm)
-    {
-        await SearchBox.FillAsync(searchTerm);
-        await SearchBox.PressAsync("Enter");
-    }
-
-    // Open Categories dropdown
-    public async Task OpenCategoriesMenuAsync()
-    {
-        await CategoriesButton.ClickAsync();
-    }
-
-    // Verify search field visibility
-    public async Task<bool> IsSearchBoxVisibleAsync()
-    {
-        await SearchBox.WaitForAsync(new()      // Wait for the search box to be visible
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 10000
-        });
-
-        return await SearchBox.IsVisibleAsync();
-    }
-
-    public async Task<bool> IsCategoriesMenuExpandedAsync()     // Verify Categories dropdown state
-    {
-        return await CategoriesButton.GetAttributeAsync("aria-expanded") == "true";
-    }
-    
-    public async Task<int> GetProductCardCountAsync()  // Retrieves the number of products displayed
+    public async Task<int> GetProductCardCountAsync()
     {
         await ProductCards.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 10000         //waits at most 10 seconds for the first product card to be visible before counting the total number of product cards.
+            Timeout = 15000
         });
 
         return await ProductCards.CountAsync();
     }
-    
-   // Wait until the displayed products match the search term
 
-// Wait until all visible products match the search term
-    public async Task WaitForSearchResultsAsync(string searchTerm)
+    public async Task<IReadOnlyList<string>> GetProductNamesAsync() =>
+        await ProductNames.AllInnerTextsAsync();
+
+    public async Task ExpandWomenCategoryAsync()
     {
-        await _page.WaitForFunctionAsync(
-            @"(term) =>
-            {
-                const productNames = Array.from(
-                    document.querySelectorAll('[data-test=""product-name""]')
-                ).filter(product => product.getClientRects().length > 0);
+        await CloseAdvertisementIfPresentAsync();
 
-                return productNames.length > 0 &&
-                    productNames.every(product =>
-                        (product.textContent || '')
-                            .trim()
-                            .toLowerCase()
-                            .includes(term.toLowerCase())
-                    );
-            }",
-            searchTerm,
-            new PageWaitForFunctionOptions
-            {
-                Timeout = 15000
-            }
-        );
-    }
+        await WomenCategoryLink.ClickAsync();
 
-    // Wait until a search returns zero products
-    public async Task WaitForNoSearchResultsAsync()
-    {
-        await _page.WaitForFunctionAsync(
-            @"() => {
-            const resultCount = document.querySelector(
-                '[data-test=""search-result-count""]'
-            );
-
-            return resultCount &&
-                resultCount.textContent.trim().startsWith('0 products found');
-        }",
-            null,
-            new PageWaitForFunctionOptions
-            {
-                Timeout = 60000
-            }
-        );
-    }
-
-    // Retrieve displayed product names
-    public async Task<IReadOnlyList<string>> GetProductNamesAsync()
-    {
-        return await ProductNames.AllTextContentsAsync();
-    }
-
-    // Open a product by its exact name
-    public async Task OpenProductAsync(string productName)
-    {
-        var product = ProductCards.Filter(new()
-        {
-            Has = _page.GetByText(productName, new()
-            {
-            Exact = true
-            })
-        });
-
-        await product.First.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 10000
-        });
-
-        await product.First.ClickAsync();
-    }
-
-    // Retrieve the search-results count message
-    public async Task<string> GetSearchResultCountTextAsync()
-    {
-        await SearchResultCount.WaitForAsync(new()
+        await WomenSubcategoryLinks.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
             Timeout = 15000
         });
-
-        return (await SearchResultCount.InnerTextAsync()).Trim();
     }
 
-    // Extract the numeric product count from the search-results message
-    public async Task<int> GetSearchResultCountAsync()
-    {
-        var resultText = await GetSearchResultCountTextAsync();
+    public async Task<int> GetWomenSubcategoryCountAsync() =>
+        await WomenSubcategoryLinks.CountAsync();
 
-        var match = System.Text.RegularExpressions.Regex.Match(
-            resultText,
-            @"^\s*(\d+)\s+products found"
+    public async Task<IReadOnlyList<string>> GetWomenSubcategoryNamesAsync() =>
+        await WomenSubcategoryLinks.AllInnerTextsAsync();
+
+    public async Task SelectWomenTopsCategoryAsync()
+    {
+        await ExpandWomenCategoryAsync();
+
+        await WomenTopsLink.ClickAsync();
+
+        await _page.WaitForURLAsync(
+            url => url.Contains("/category_products/2"),
+            new() { Timeout = 15000 }
         );
 
-        if (!match.Success)
+        await ProductCards.First.WaitForAsync(new()
         {
-            throw new InvalidOperationException(
-                $"Unable to extract product count from: {resultText}"
-            );
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+    }
+
+    public async Task CloseAdvertisementIfPresentAsync()
+    {
+        if (await AdvertisementClosePrompt.IsVisibleAsync())
+        {
+            await AdvertisementClosePrompt.ClickAsync();
         }
-
-        return int.Parse(match.Groups[1].Value);
     }
-
-    // Verify that the no-products message is visible
-    public async Task<bool> IsNoProductsMessageVisibleAsync()
-    {
-        await NoProductsMessage.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
-
-        return await NoProductsMessage.IsVisibleAsync();
-    }
-
-    // Retrieve the current search-field value
-    public async Task<string> GetSearchBoxValueAsync()
-    {
-        return await SearchBox.InputValueAsync();
-    }
-
-    // Retrieve the number of product cards without waiting for one to appear
-    public async Task<int> GetProductCardCountAfterSearchAsync()
-    {
-        return await ProductCards.CountAsync();
-    }
-
 }
