@@ -36,7 +36,8 @@ public class ProductsPage
 
     public async Task NavigateAsync()
     {
-        var productsUrl = $"{TestConfig.BaseUrl.TrimEnd('/')}/products";
+        var productsUrl =
+            $"{TestConfig.BaseUrl.TrimEnd('/')}/products";
 
         var response = await _page.GotoAsync(
             productsUrl,
@@ -68,7 +69,15 @@ public class ProductsPage
 
     public async Task SearchForProductAsync(string searchTerm)
     {
-        await SearchInput.FillAsync(searchTerm);
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            throw new ArgumentException(
+                "Search term cannot be empty or whitespace.",
+                nameof(searchTerm)
+            );
+        }
+
+        await SearchInput.FillAsync(searchTerm.Trim());
         await SearchButton.ClickAsync();
 
         await SearchedProductsHeading.WaitForAsync(new()
@@ -78,14 +87,38 @@ public class ProductsPage
         });
     }
 
-    public async Task<IReadOnlyList<string>> GetProductNamesAsync() =>
-        await ProductNames.AllInnerTextsAsync();
+    public async Task<IReadOnlyList<string>> GetProductNamesAsync()
+    {
+        await SearchedProductsHeading.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
 
-    public async Task<int> GetProductCountAsync() =>
-        await ProductCards.CountAsync();
+        return await ProductNames.AllInnerTextsAsync();
+    }
 
-    public async Task<IReadOnlyList<string>> GetProductPricesAsync() =>
-        await ProductPrices.AllInnerTextsAsync();
+    public async Task<int> GetProductCountAsync()
+    {
+        await SearchedProductsHeading.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        return await ProductCards.CountAsync();
+    }
+
+    public async Task<IReadOnlyList<string>> GetProductPricesAsync()
+    {
+        await SearchedProductsHeading.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        return await ProductPrices.AllInnerTextsAsync();
+    }
 
     public async Task<bool> IsSearchedProductsHeadingVisibleAsync() =>
         await SearchedProductsHeading.IsVisibleAsync();

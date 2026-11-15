@@ -16,7 +16,8 @@ public class ProductDetailsPage
         ProductInformation.Locator("h2");
 
     private ILocator ProductCategory =>
-        ProductInformation.Locator("> p").First;
+        ProductInformation.Locator("p")
+            .Filter(new() { HasText = "Category:" });
 
     private ILocator ProductPrice =>
         ProductInformation.Locator("span span").First;
@@ -38,29 +39,33 @@ public class ProductDetailsPage
         _page = page;
     }
 
-    public async Task<string> GetProductNameAsync()
+    private static async Task<string> GetVisibleTextAsync(
+        ILocator locator)
     {
-        await ProductName.WaitForAsync(new()
+        await locator.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
             Timeout = 15000
         });
 
-        return (await ProductName.InnerTextAsync()).Trim();
+        return (await locator.InnerTextAsync()).Trim();
     }
 
+    public async Task<string> GetProductNameAsync() =>
+        await GetVisibleTextAsync(ProductName);
+
     public async Task<string> GetProductCategoryAsync() =>
-        (await ProductCategory.InnerTextAsync()).Trim();
+        await GetVisibleTextAsync(ProductCategory);
 
     public async Task<string> GetProductPriceAsync() =>
-        (await ProductPrice.InnerTextAsync()).Trim();
+        await GetVisibleTextAsync(ProductPrice);
 
     public async Task<string> GetAvailabilityAsync() =>
-        (await Availability.InnerTextAsync()).Trim();
+        await GetVisibleTextAsync(Availability);
 
     public async Task<string> GetConditionAsync() =>
-        (await Condition.InnerTextAsync()).Trim();
+        await GetVisibleTextAsync(Condition);
 
     public async Task<string> GetBrandAsync() =>
-        (await Brand.InnerTextAsync()).Trim();
+        await GetVisibleTextAsync(Brand);
 }
