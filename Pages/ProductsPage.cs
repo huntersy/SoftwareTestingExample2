@@ -20,14 +20,17 @@ public class ProductsPage
             new() { Name = "Searched Products" }
         );
 
+    // Product cards displayed in the main product listing.
     private ILocator ProductCards =>
-        _page.Locator(".product-image-wrapper");
+        _page.Locator(".features_items .product-image-wrapper");
 
+    // Product names displayed in the main product listing.
     private ILocator ProductNames =>
-        _page.Locator(".productinfo p");
+        _page.Locator(".features_items .productinfo p");
 
+    // Product prices displayed in the main product listing.
     private ILocator ProductPrices =>
-        _page.Locator(".productinfo h2");
+        _page.Locator(".features_items .productinfo h2");
 
     public ProductsPage(IPage page)
     {

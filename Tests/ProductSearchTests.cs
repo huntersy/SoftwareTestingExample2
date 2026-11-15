@@ -164,9 +164,10 @@ public class ProductSearchTests : PageTest
 
         Assert.That(
             productNames.All(name =>
-                name.Contains("dress", StringComparison.OrdinalIgnoreCase)),
+            name.Contains("dress", StringComparison.OrdinalIgnoreCase)),
             Is.True,
-            "Every displayed result should match the dress search term."
+            $"Every displayed result should match the dress search term. " +
+            $"Actual product names: {string.Join(", ", productNames)}"
         );
     }
 
