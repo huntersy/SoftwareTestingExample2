@@ -21,7 +21,7 @@ public class LoginPage
         _page.Locator("[data-qa='login-password']");
 
     private ILocator LoginButton =>
-        _page.Locator("[data-qa='login']");
+    _page.Locator("[data-qa='login-button']");
 
     private ILocator InvalidLoginMessage =>
         _page.GetByText(

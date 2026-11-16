@@ -15,7 +15,7 @@ public class RegisterPage
         _page.Locator("[data-qa='signup-email']");
 
     private ILocator SignupButton =>
-        _page.Locator("[data-qa='signup']");
+    _page.Locator("[data-qa='signup-button']");
 
     private ILocator AccountInformationHeading =>
         _page.GetByText(
