@@ -6,7 +6,7 @@ using SoftwareTestingExample.Utilities;
 
 namespace SoftwareTestingExample.Tests;
 
-public class CheckoutTests : PageTest
+public class CheckoutTests : UiTest
 {
     private const string TestPassword = "QaTest123!";
 

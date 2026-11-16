@@ -6,7 +6,7 @@ using SoftwareTestingExample.Pages;
 namespace SoftwareTestingExample.Tests;
 
 [Parallelizable(ParallelScope.None)]
-public class ProductFilterTests : PageTest
+public class ProductFilterTests : UiTest
 {
     [Test]
     public async Task TC12_WomenTopsCategoryDisplaysProducts()

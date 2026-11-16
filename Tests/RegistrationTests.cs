@@ -5,7 +5,7 @@ using SoftwareTestingExample.Pages;
 
 namespace SoftwareTestingExample.Tests;
 
-public class RegistrationTests : PageTest
+public class RegistrationTests : UiTest
 {
     private static string GenerateUniqueEmail() =>
         $"qa{Guid.NewGuid():N}@example.com";

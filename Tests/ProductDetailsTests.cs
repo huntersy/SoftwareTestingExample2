@@ -4,7 +4,7 @@ using SoftwareTestingExample.Pages;
 
 namespace SoftwareTestingExample.Tests;
 
-public class ProductDetailsTests : PageTest
+public class ProductDetailsTests : UiTest
 {
     private async Task<ProductDetailsPage> OpenBlueTopDetailsAsync()
     {

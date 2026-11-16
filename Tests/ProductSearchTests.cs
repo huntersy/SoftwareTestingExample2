@@ -7,7 +7,7 @@ using SoftwareTestingExample.Pages;
 
 namespace SoftwareTestingExample.Tests;
 
-public class ProductSearchTests : PageTest
+public class ProductSearchTests : UiTest
 {
     [Test]
     public async Task TC06_SearchReturnsMatchingProducts()

@@ -42,10 +42,13 @@ jobs:
       - name: Run NUnit tests
         run: dotnet test --no-build --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
 
-      - name: Upload test results
+      - name: Upload test and failure diagnostic artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-test-results
-          path: TestResults/**/*.trx
+          name: playwright-test-artifacts
+          path: |
+            TestResults/**/*.trx
+            TestResults/FailureArtifacts/**
           if-no-files-found: warn
+          retention-days: 14

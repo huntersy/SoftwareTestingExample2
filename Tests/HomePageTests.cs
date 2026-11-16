@@ -7,7 +7,7 @@ using SoftwareTestingExample.Utilities;
 
 namespace SoftwareTestingExample.Tests;
 
-public class HomePageTests : PageTest
+public class HomePageTests : UiTest
 {
     [Test]
     public async Task Homepage_ShouldLoadSuccessfully()

@@ -5,7 +5,7 @@ using SoftwareTestingExample.Pages;
 
 namespace SoftwareTestingExample.Tests;
 
-public class ShoppingCartTests : PageTest
+public class ShoppingCartTests : UiTest
 {
     private async Task<CartPage> AddBlueTopAndOpenCartAsync()
     {
