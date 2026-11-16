@@ -29,6 +29,20 @@ public class CartPage
             HasText = productName
         });
 
+    public async Task ProceedToCheckoutAsync()
+    {
+        await ProceedToCheckoutButton.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await ProceedToCheckoutButton.ClickAsync();
+    }
+
+    private ILocator ProceedToCheckoutButton =>
+    _page.Locator("a.check_out");
+
     public async Task WaitForCartItemsAsync()
     {
         await CartRows.First.WaitForAsync(new()
