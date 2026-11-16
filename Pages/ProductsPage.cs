@@ -136,6 +136,7 @@ public class ProductsPage
     public async Task<bool> IsSearchedProductsHeadingVisibleAsync() =>
         await SearchedProductsHeading.IsVisibleAsync();
 
+
     public async Task AddProductToCartAsync(string productId)
     {
         if (!int.TryParse(productId, out var id) || id <= 0)
@@ -156,11 +157,27 @@ public class ProductsPage
             Timeout = 15000
         });
 
-        await productCard.HoverAsync();
+        // Use the regular product-information button instead of
+        // the animated hover overlay.
+        var addToCartButton = productCard.Locator(
+            $".productinfo a.add-to-cart[data-product-id='{id}']"
+        );
 
-        await productCard.Locator(
-            $".product-overlay a[data-product-id='{id}']"
-        ).ClickAsync();
+        await addToCartButton.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await addToCartButton.ScrollIntoViewIfNeededAsync();
+
+        // The practice website's third-party advertisements can
+        // intercept pointer events. Force the click on the visible
+        // product-information button rather than the hover overlay.
+        await addToCartButton.ClickAsync(new()
+        {
+            Force = true
+        });
 
         await AddToCartModal.WaitForAsync(new()
         {
@@ -168,6 +185,7 @@ public class ProductsPage
             Timeout = 15000
         });
     }
+
 
     public async Task<bool> IsAddToCartModalVisibleAsync() =>
         await AddToCartModal.IsVisibleAsync();

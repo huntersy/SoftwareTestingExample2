@@ -8,10 +8,10 @@ public class CheckoutPage
 
     // Guest checkout prompt.
     private ILocator RegisterLoginPrompt =>
-        _page.GetByText(
-            "Register / Login",
-            new() { Exact = false }
-        );
+    _page.GetByRole(
+        AriaRole.Link,
+        new() { Name = "Register / Login" }
+    );
 
     // Delivery and billing address sections.
     private ILocator DeliveryAddress =>
@@ -53,10 +53,10 @@ public class CheckoutPage
 
     // Order confirmation.
     private ILocator OrderConfirmationMessage =>
-        _page.GetByText(
-            "Your order has been placed successfully!",
-            new() { Exact = false }
-        );
+    _page.GetByText(
+        "Congratulations! Your order has been confirmed!",
+        new() { Exact = false }
+    );
 
     // Invoice download.
     private ILocator DownloadInvoiceButton =>
