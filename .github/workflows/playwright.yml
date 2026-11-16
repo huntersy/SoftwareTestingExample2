@@ -49,6 +49,6 @@ jobs:
           name: playwright-test-artifacts
           path: |
             TestResults/**/*.trx
-            TestResults/FailureArtifacts/**
+            **/TestResults/FailureArtifacts/**
           if-no-files-found: warn
           retention-days: 14
