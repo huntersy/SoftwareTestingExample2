@@ -30,7 +30,7 @@ public class RegisterPage
         );
 
     private ILocator ContinueButton =>
-        _page.Locator("[data-qa='continue']");
+    _page.Locator("[data-qa='continue-button']");
 
     private ILocator DeleteAccountLink =>
         _page.Locator("a[href='/delete_account']");
