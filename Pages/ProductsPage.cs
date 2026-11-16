@@ -190,6 +190,7 @@ public class ProductsPage
     public async Task<bool> IsAddToCartModalVisibleAsync() =>
         await AddToCartModal.IsVisibleAsync();
 
+
     public async Task OpenCartFromAddToCartModalAsync()
     {
         await ModalViewCartLink.WaitForAsync(new()
@@ -198,7 +199,14 @@ public class ProductsPage
             Timeout = 15000
         });
 
-        await ModalViewCartLink.ClickAsync();
+        await ModalViewCartLink.ScrollIntoViewIfNeededAsync();
+
+        // The practice website's advertisements can intercept
+        // pointer events on the modal's View Cart link.
+        await ModalViewCartLink.ClickAsync(new()
+        {
+            Force = true
+        });
 
         await _page.Locator("#cart_info_table").WaitForAsync(new()
         {
@@ -206,6 +214,7 @@ public class ProductsPage
             Timeout = 15000
         });
     }
+
 
     public async Task ContinueShoppingAsync()
     {
