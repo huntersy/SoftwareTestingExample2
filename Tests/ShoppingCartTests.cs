@@ -1,4 +1,4 @@
-
+using System.Globalization;
 using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
 using SoftwareTestingExample.Pages;
@@ -168,4 +168,146 @@ public class ShoppingCartTests : PageTest
             "The empty cart message should be displayed."
         );
     }
+
+
+    // TC28: Verify that multiple different products can be added to the cart.
+    [Test]
+    public async Task TC28_MultipleProductsCanBeAddedToCart()
+    {
+        var productsPage = new ProductsPage(Page);
+
+        await productsPage.NavigateAsync();
+
+        // Add the first product.
+        await productsPage.AddProductToCartAsync("1");
+
+        // Close the confirmation modal and continue shopping.
+        await productsPage.ContinueShoppingAsync();
+
+        // Add the second product.
+        await productsPage.AddProductToCartAsync("2");
+
+        // Open the cart from the second confirmation modal.
+        await productsPage.OpenCartFromAddToCartModalAsync();
+
+        var cartPage = new CartPage(Page);
+
+        await cartPage.WaitForCartItemsAsync();
+
+        var productNames = await cartPage.GetProductNamesAsync();
+
+        Assert.That(
+            productNames,
+            Does.Contain("Blue Top"),
+            "The cart should contain the first product."
+        );
+
+        Assert.That(
+            productNames,
+            Does.Contain("Men Tshirt"),
+            "The cart should contain the second product."
+        );
+
+        Assert.That(
+            await cartPage.GetCartItemCountAsync(),
+            Is.EqualTo(2),
+            "The cart should contain exactly two products."
+        );
+    }
+
+    // TC29: Verify that cart contents remain after refreshing the page.
+    [Test]
+    public async Task TC29_CartContentsRemainAfterPageRefresh()
+    {
+        var cartPage = await AddBlueTopAndOpenCartAsync();
+
+        var initialProductNames =
+            await cartPage.GetProductNamesAsync();
+
+        Assert.That(
+            initialProductNames,
+            Does.Contain("Blue Top"),
+            "Blue Top should initially appear in the cart."
+        );
+
+        // Refresh the cart page.
+        await Page.ReloadAsync();
+
+        await cartPage.WaitForCartItemsAsync();
+
+        var refreshedProductNames =
+            await cartPage.GetProductNamesAsync();
+
+        Assert.That(
+            refreshedProductNames,
+            Does.Contain("Blue Top"),
+            "Blue Top should remain in the cart after refreshing."
+        );
+
+        Assert.That(
+            await cartPage.GetCartItemCountAsync(),
+            Is.EqualTo(1),
+            "The cart should still contain one product after refreshing."
+        );
+    }
+
+    // TC30: Verify that the cart total reflects the selected quantity.
+    [Test]
+    public async Task TC30_CartTotalReflectsSelectedQuantity()
+    {
+        var productsPage = new ProductsPage(Page);
+
+        await productsPage.NavigateAsync();
+
+        await productsPage.OpenProductDetailsAsync("1");
+
+        var productDetailsPage =
+            new ProductDetailsPage(Page);
+
+        await productDetailsPage.SetQuantityAsync(4);
+
+        await productDetailsPage.AddToCartAsync();
+
+        await productDetailsPage.OpenCartFromAddToCartModalAsync();
+
+        var cartPage = new CartPage(Page);
+
+        await cartPage.WaitForCartItemsAsync();
+
+        var unitPriceText =
+            await cartPage.GetProductPriceByNameAsync("Blue Top");
+
+        var totalText =
+            await cartPage.GetProductTotalByNameAsync("Blue Top");
+
+        var quantity =
+            await cartPage.GetProductQuantityByNameAsync("Blue Top");
+
+        var unitPrice = decimal.Parse(
+            unitPriceText.Replace("Rs.", "").Trim(),
+            NumberStyles.Number,
+            CultureInfo.InvariantCulture
+        );
+
+        var actualTotal = decimal.Parse(
+            totalText.Replace("Rs.", "").Trim(),
+            NumberStyles.Number,
+            CultureInfo.InvariantCulture
+        );
+
+        var expectedTotal = unitPrice * quantity;
+
+        Assert.That(
+            quantity,
+            Is.EqualTo(4),
+            "The cart should contain the requested quantity of four."
+        );
+
+        Assert.That(
+            actualTotal,
+            Is.EqualTo(expectedTotal),
+            "The cart total should equal the unit price multiplied by quantity."
+        );
+    }
+
 }
