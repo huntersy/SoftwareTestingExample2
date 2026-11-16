@@ -68,4 +68,57 @@ public class ProductDetailsPage
 
     public async Task<string> GetBrandAsync() =>
         await GetVisibleTextAsync(Brand);
+
+    private ILocator QuantityInput =>
+    _page.Locator("#quantity");
+
+    private ILocator AddToCartButton =>
+        _page.Locator("button.cart");
+
+    private ILocator AddToCartModal =>
+        _page.Locator("#cartModal");
+
+    public async Task SetQuantityAsync(int quantity)
+    {
+        if (quantity < 1)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(quantity),
+                "Product quantity must be at least 1."
+            );
+        }
+
+        await QuantityInput.FillAsync(quantity.ToString());
+    }
+
+    public async Task AddToCartAsync()
+    {
+        await AddToCartButton.ClickAsync();
+
+        await AddToCartModal.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+    }
+
+    public async Task OpenCartFromAddToCartModalAsync()
+    {
+        var viewCartLink =
+            AddToCartModal.Locator("a[href='/view_cart']");
+
+        await viewCartLink.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await viewCartLink.ClickAsync();
+
+        await _page.Locator("#cart_info_table").WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+    }
 }

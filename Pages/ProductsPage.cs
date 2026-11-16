@@ -32,6 +32,16 @@ public class ProductsPage
     private ILocator ProductPrices =>
         _page.Locator(".features_items .productinfo h2");
 
+    // Add-to-cart confirmation modal.
+    private ILocator AddToCartModal =>
+        _page.Locator("#cartModal");
+
+    private ILocator ModalViewCartLink =>
+        AddToCartModal.Locator("a[href='/view_cart']");
+
+    private ILocator ContinueShoppingButton =>
+        AddToCartModal.Locator("button.close-modal");
+
     public ProductsPage(IPage page)
     {
         _page = page;
@@ -125,4 +135,87 @@ public class ProductsPage
 
     public async Task<bool> IsSearchedProductsHeadingVisibleAsync() =>
         await SearchedProductsHeading.IsVisibleAsync();
+
+    public async Task AddProductToCartAsync(string productId)
+    {
+        if (!int.TryParse(productId, out var id) || id <= 0)
+        {
+            throw new ArgumentException(
+                "Product ID must be a positive number.",
+                nameof(productId)
+            );
+        }
+
+        var productCard = _page.Locator(
+            $".features_items .product-image-wrapper:has(a[data-product-id='{id}'])"
+        );
+
+        await productCard.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await productCard.HoverAsync();
+
+        await productCard.Locator(
+            $".product-overlay a[data-product-id='{id}']"
+        ).ClickAsync();
+
+        await AddToCartModal.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+    }
+
+    public async Task<bool> IsAddToCartModalVisibleAsync() =>
+        await AddToCartModal.IsVisibleAsync();
+
+    public async Task OpenCartFromAddToCartModalAsync()
+    {
+        await ModalViewCartLink.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await ModalViewCartLink.ClickAsync();
+
+        await _page.Locator("#cart_info_table").WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+    }
+
+    public async Task ContinueShoppingAsync()
+    {
+        await ContinueShoppingButton.ClickAsync();
+
+        await AddToCartModal.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Hidden,
+            Timeout = 15000
+        });
+    }
+
+
+    public async Task OpenProductDetailsAsync(string productId)
+    {
+        if (!int.TryParse(productId, out var id) || id <= 0)
+        {
+            throw new ArgumentException(
+                "Product ID must be a positive number.",
+                nameof(productId)
+            );
+        }
+
+        var productLink = _page.Locator(
+            $".features_items a[href='/product_details/{id}']"
+        ).First;
+
+        await productLink.ClickAsync();
+    }
+
 }
