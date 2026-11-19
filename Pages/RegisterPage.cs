@@ -52,7 +52,7 @@ public class RegisterPage
             $"{TestConfig.BaseUrl.TrimEnd('/')}/login",
             new PageGotoOptions
             {
-                WaitUntil = WaitUntilState.DOMContentLoaded,
+                WaitUntil = WaitUntilState.Commit,
                 Timeout = 30000
             }
         );
