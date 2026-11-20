@@ -38,6 +38,27 @@ A C# browser automation framework built with **Microsoft Playwright for .NET**, 
 
 The project uses the Page Object Model to separate test intent from browser interaction details.
 
+### Architecture at a glance
+
+```mermaid
+flowchart TD
+    CI[GitHub Actions] --> Pipeline[Restore · Build · Chromium · Test · Report]
+    Pipeline --> Tests
+
+    subgraph Framework[Playwright NUnit Framework]
+        Tests[Test classes · 40 NUnit tests] --> Base[UiTest · shared Playwright lifecycle]
+        Base --> Pages[Page Objects · locators and page actions]
+        Config[TestConfig · BASE_URL] --> Pages
+        Pages --> Browser[Playwright Page / Browser]
+    end
+
+    Browser --> AUT[Automation Exercise]
+    Base --> Diagnostics[Failure screenshot and trace]
+    Pipeline --> Results[TRX report and CI artifacts]
+```
+
+Test classes define scenarios and assertions; `UiTest` provides the common Playwright test lifecycle and failure diagnostics. Page objects encapsulate browser interactions, while `TestConfig` supplies the application base URL. GitHub Actions builds the project, runs the suite, publishes the TRX report, and uploads available artifacts.
+
 - **Tests** contain scenario steps and NUnit assertions.
 - **Pages** encapsulate page-specific locators and reusable actions.
 - **Utilities** centralize shared configuration.
