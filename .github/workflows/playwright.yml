@@ -1,4 +1,3 @@
-﻿
 name: Playwright NUnit CI
 
 on:
@@ -12,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   test:
@@ -41,6 +41,16 @@ jobs:
 
       - name: Run NUnit tests
         run: dotnet test --no-build --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Publish NUnit test report
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Playwright NUnit Test Results
+          path: TestResults/*.trx
+          reporter: dotnet-trx
+          list-tests: all
+          fail-on-empty: false
 
       - name: Upload test and failure diagnostic artifacts
         if: always()
