@@ -244,7 +244,7 @@ All test classes inherit from `UiTest` in `Tests/UiTests.cs`.
 A trace ZIP can be opened with the Playwright Trace Viewer:
 
 ```bash
-playwright show-trace path/to/trace.zip
+./bin/Release/net8.0/playwright.sh show-trace path/to/trace.zip
 ```
 
 The Trace Viewer makes it possible to inspect recorded actions, page snapshots, network activity, and captured screenshots to help investigate failures.
@@ -296,6 +296,7 @@ SoftwareTestingExample2/
 │   └── workflows/
 │       └── playwright.yml
 ├── Pages/
+│   ├── BasePage.cs
 │   ├── CartPage.cs
 │   ├── CheckoutPage.cs
 │   ├── HomePage.cs
