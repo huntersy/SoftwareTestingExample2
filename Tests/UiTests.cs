@@ -52,7 +52,6 @@ public class UiTest : PageTest
             new
             {
                 result.Outcome.Status,
-                result.Duration,
                 result.Message
             }
         );
