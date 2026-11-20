@@ -1,8 +1,8 @@
-
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using SoftwareTestingExample2.Utilities;
 
 namespace SoftwareTestingExample.Tests;
 
@@ -11,6 +11,8 @@ public class UiTest : PageTest
     [SetUp]
     public async Task StartTracingAsync()
     {
+        TestLogger.Log("test.started");
+
         await Context.Tracing.StartAsync(new()
         {
             Title =
@@ -21,14 +23,18 @@ public class UiTest : PageTest
             Snapshots = true,
             Sources = true
         });
+
+        TestLogger.Log(
+            "playwright.trace.started",
+            properties: new { screenshots = true, snapshots = true, sources = true }
+        );
     }
 
     [TearDown]
     public async Task CaptureFailureDiagnosticsAsync()
     {
-        var failed =
-            TestContext.CurrentContext.Result.Outcome.Status
-            == TestStatus.Failed;
+        var result = TestContext.CurrentContext.Result;
+        var failed = result.Outcome.Status == TestStatus.Failed;
 
         var artifactDirectory = Path.Combine(
             TestContext.CurrentContext.WorkDirectory,
@@ -39,6 +45,17 @@ public class UiTest : PageTest
         string testName =
             $"{TestContext.CurrentContext.Test.ClassName}." +
             $"{TestContext.CurrentContext.Test.Name}";
+
+        TestLogger.Log(
+            failed ? "test.failed" : "test.passed",
+            failed ? "Error" : "Information",
+            new
+            {
+                result.Outcome.Status,
+                result.Duration,
+                result.Message
+            }
+        );
 
         try
         {
@@ -59,14 +76,17 @@ public class UiTest : PageTest
                         FullPage = true
                     });
 
-                    TestContext.Progress.WriteLine(
-                        $"Failure screenshot saved: {screenshotPath}"
+                    TestLogger.Log(
+                        "failure.screenshot.saved",
+                        properties: new { path = screenshotPath }
                     );
                 }
                 catch (Exception exception)
                 {
-                    TestContext.Progress.WriteLine(
-                        $"Screenshot capture failed: {exception.Message}"
+                    TestLogger.Log(
+                        "failure.screenshot.capture_failed",
+                        "Warning",
+                        exception: exception
                     );
                 }
 
@@ -80,20 +100,23 @@ public class UiTest : PageTest
                     Path = tracePath
                 });
 
-                TestContext.Progress.WriteLine(
-                    $"Playwright trace saved: {tracePath}"
+                TestLogger.Log(
+                    "failure.trace.saved",
+                    properties: new { path = tracePath }
                 );
             }
             else
             {
-                // Do not create trace files for successful tests.
                 await Context.Tracing.StopAsync();
+                TestLogger.Log("playwright.trace.stopped");
             }
         }
         catch (Exception exception)
         {
-            TestContext.Progress.WriteLine(
-                $"Failure diagnostics could not be completed: {exception.Message}"
+            TestLogger.Log(
+                "failure.diagnostics.incomplete",
+                "Warning",
+                exception: exception
             );
         }
     }
