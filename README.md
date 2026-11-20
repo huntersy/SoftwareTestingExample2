@@ -12,6 +12,7 @@ A C# browser automation framework built with **Microsoft Playwright for .NET**, 
 - 40 NUnit automated UI tests organized across 8 test classes.
 - Page Object Model with reusable page-level actions and locators.
 - Coverage spanning homepage, product search and details, shopping cart, login, registration, and checkout.
+- Structured JSON test lifecycle and diagnostic logging written to NUnit test output.
 - Playwright tracing for every test and failure-only screenshots and trace archives.
 - Configurable base URL through the `BASE_URL` environment variable.
 - GitHub Actions workflow for automated build, browser setup, test execution, NUnit/TRX reporting, and artifact upload.
@@ -269,6 +270,10 @@ A trace ZIP can be opened with the Playwright Trace Viewer:
 ```
 
 The Trace Viewer makes it possible to inspect recorded actions, page snapshots, network activity, and captured screenshots to help investigate failures.
+
+### Structured test logging
+
+`Utilities/TestLogger.cs` writes one JSON record per framework event to NUnit's test output. Records include a UTC timestamp, severity level, event name, test class and test name, optional event properties, and exception details when available. The shared `UiTest` lifecycle logs test start and outcome, trace start and stop, screenshot and trace artifact paths, and diagnostic-capture errors. This keeps machine-readable event details alongside the test results without adding a separate logging dependency.
 
 ## Continuous integration — GitHub Actions
 
