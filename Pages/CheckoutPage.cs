@@ -78,19 +78,16 @@ public class CheckoutPage
         await DeliveryAddress.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await BillingAddress.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await OrderRows.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -99,7 +96,6 @@ public class CheckoutPage
         await DeliveryAddress.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await DeliveryAddress.InnerTextAsync();
@@ -110,7 +106,6 @@ public class CheckoutPage
         await BillingAddress.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await BillingAddress.InnerTextAsync();
@@ -127,7 +122,6 @@ public class CheckoutPage
         await OrderRows.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await OrderRows
@@ -143,7 +137,6 @@ public class CheckoutPage
         await row.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return (await row.Locator("td.cart_price p")
@@ -158,7 +151,6 @@ public class CheckoutPage
         await row.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return (await row.Locator("td.cart_total p")
@@ -192,7 +184,6 @@ public class CheckoutPage
         await PlaceOrderButton.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await PlaceOrderButton.ClickAsync();
@@ -200,7 +191,6 @@ public class CheckoutPage
         await NameOnCard.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -222,7 +212,6 @@ public class CheckoutPage
         await OrderConfirmationMessage.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 30000
         });
     }
 

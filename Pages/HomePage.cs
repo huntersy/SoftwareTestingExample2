@@ -41,7 +41,6 @@ public class HomePage
             new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.DOMContentLoaded,
-                Timeout = 30000
             }
         );
 
@@ -57,7 +56,6 @@ public class HomePage
         await ProductCards.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 30000
         });
     }
 
@@ -72,7 +70,6 @@ public class HomePage
         await ProductCards.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await ProductCards.CountAsync();
@@ -90,7 +87,6 @@ public class HomePage
         await WomenSubcategoryLinks.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -108,13 +104,12 @@ public class HomePage
 
         await _page.WaitForURLAsync(
             url => url.Contains("/category_products/2"),
-            new() { Timeout = 15000 }
+            new()
         );
 
         await ProductCards.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 

@@ -78,6 +78,18 @@ Test classes define scenarios and assertions; `UiTest` provides the common Playw
 | `RegisterPage` | Registration, account confirmation, and account deletion |
 | `CheckoutPage` | Checkout details, addresses, payment, order confirmation, and invoice retrieval |
 
+## Portfolio evidence
+
+The graphic below summarizes a verified GitHub Actions execution. It is a generated results graphic, not a captured screenshot of the GitHub interface; use the live run and Checks links to inspect the actual workflow and NUnit report.
+
+![Verified Playwright NUnit CI results](docs/assets/ci-verification.svg)
+
+- [Open the successful GitHub Actions run](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/44806068299)
+- [Open the commit and published NUnit Checks report](https://github.com/huntersy/SoftwareTestingExample2/commit/eef931eb72664b450f39cd7e6732dd193720897c/checks)
+- [Browse workflow artifacts](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/44806068299#artifacts)
+
+The verified run also confirmed that structured JSON test events were preserved in the NUnit TRX output: 40 test-start events, 40 trace-start events, 40 passed-outcome events, and 40 trace-stop events (160 records total).
+
 ## Automated test coverage
 
 The current repository contains **40 NUnit test methods across 8 test classes**.
@@ -298,7 +310,7 @@ The workflow runs on:
 
 ### Verified CI execution
 
-The workflow completed successfully for commit **`bb6717d`**.
+The workflow completed successfully for commit **`eef931e`** (full SHA: `eef931eb72664b450f39cd7e6732dd193720897c`).
 
 | Result | Count |
 |---|---:|
@@ -307,10 +319,10 @@ The workflow completed successfully for commit **`bb6717d`**.
 | Skipped | 0 |
 | **Total** | **40** |
 
-The test execution completed in approximately 92 seconds on the GitHub-hosted Windows runner. The report is published in the commit's **Checks** section, and the run's artifacts include the `playwright-test-artifacts` download.
+The workflow completed with a successful Release build, Chromium installation, NUnit execution, test-report publication, and artifact upload. The verified run produced 40 passed, 0 failed, and 0 skipped tests. The report is published in the commit's **Checks** section, and the run includes the `playwright-test-artifacts` download.
 
-- [View the successful GitHub Actions run](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/44798980627)
-- [View the commit checks and NUnit report](https://github.com/huntersy/SoftwareTestingExample2/commit/bb6717d6d49e23f55232c5361ebf6f0aaccec42d/checks)
+- [View the successful GitHub Actions run](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/44806068299)
+- [View the commit checks and NUnit report](https://github.com/huntersy/SoftwareTestingExample2/commit/eef931eb72664b450f39cd7e6732dd193720897c/checks)
 
 CI results are specific to the commit and execution shown above; later code changes should be validated by a new workflow run.
 

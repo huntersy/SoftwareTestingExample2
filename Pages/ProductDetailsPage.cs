@@ -45,7 +45,6 @@ public class ProductDetailsPage
         await locator.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return (await locator.InnerTextAsync()).Trim();
@@ -98,7 +97,6 @@ public class ProductDetailsPage
         await AddToCartModal.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -110,7 +108,6 @@ public class ProductDetailsPage
         await viewCartLink.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await viewCartLink.ClickAsync();
@@ -118,7 +115,6 @@ public class ProductDetailsPage
         await _page.Locator("#cart_info_table").WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 }

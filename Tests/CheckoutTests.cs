@@ -418,7 +418,6 @@ public class CheckoutTests : UiTest
                 new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.DOMContentLoaded,
-                    Timeout = 30000
                 }
             );
 
@@ -430,7 +429,6 @@ public class CheckoutTests : UiTest
             await emptyCartMessage.WaitForAsync(new()
             {
                 State = WaitForSelectorState.Visible,
-                Timeout = 15000
             });
 
             var cartPage = new CartPage(Page);

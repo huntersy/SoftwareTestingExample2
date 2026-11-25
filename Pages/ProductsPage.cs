@@ -57,7 +57,6 @@ public class ProductsPage
             new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.DOMContentLoaded,
-                Timeout = 30000
             }
         );
 
@@ -73,7 +72,6 @@ public class ProductsPage
         await SearchInput.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 30000
         });
     }
 
@@ -96,7 +94,6 @@ public class ProductsPage
         await SearchedProductsHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -105,7 +102,6 @@ public class ProductsPage
         await SearchedProductsHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await ProductNames.AllInnerTextsAsync();
@@ -116,7 +112,6 @@ public class ProductsPage
         await SearchedProductsHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await ProductCards.CountAsync();
@@ -127,7 +122,6 @@ public class ProductsPage
         await SearchedProductsHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return await ProductPrices.AllInnerTextsAsync();
@@ -154,7 +148,6 @@ public class ProductsPage
         await productCard.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         // Use the regular product-information button instead of
@@ -166,7 +159,6 @@ public class ProductsPage
         await addToCartButton.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await addToCartButton.ScrollIntoViewIfNeededAsync();
@@ -182,7 +174,6 @@ public class ProductsPage
         await AddToCartModal.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -196,7 +187,6 @@ public class ProductsPage
         await ModalViewCartLink.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await ModalViewCartLink.ScrollIntoViewIfNeededAsync();
@@ -211,7 +201,6 @@ public class ProductsPage
         await _page.Locator("#cart_info_table").WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -223,7 +212,6 @@ public class ProductsPage
         await AddToCartModal.WaitForAsync(new()
         {
             State = WaitForSelectorState.Hidden,
-            Timeout = 15000
         });
     }
 

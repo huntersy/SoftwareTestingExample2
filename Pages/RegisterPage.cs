@@ -53,14 +53,12 @@ public class RegisterPage
             new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.Commit,
-                Timeout = 30000
             }
         );
 
         await SignupName.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -75,7 +73,6 @@ public class RegisterPage
         await AccountInformationHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -138,7 +135,6 @@ public class RegisterPage
         await AccountCreatedMessage.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -154,7 +150,6 @@ public class RegisterPage
         await AccountDeletedMessage.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 

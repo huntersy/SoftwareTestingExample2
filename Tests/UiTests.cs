@@ -11,6 +11,9 @@ public class UiTest : PageTest
     [SetUp]
     public async Task StartTracingAsync()
     {
+        Page.SetDefaultTimeout(SoftwareTestingExample.Utilities.TestConfig.DefaultTimeoutMilliseconds);
+        Page.SetDefaultNavigationTimeout(SoftwareTestingExample.Utilities.TestConfig.DefaultTimeoutMilliseconds);
+
         TestLogger.Log("test.started");
 
         await Context.Tracing.StartAsync(new()

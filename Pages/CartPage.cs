@@ -34,7 +34,6 @@ public class CartPage
         await ProceedToCheckoutButton.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await ProceedToCheckoutButton.ClickAsync();
@@ -48,7 +47,6 @@ public class CartPage
         await CartRows.First.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -72,7 +70,6 @@ public class CartPage
         await row.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         return (await row.Locator("td.cart_price p")
@@ -116,7 +113,6 @@ public class CartPage
         await row.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
 
         await row.Locator("a.cart_quantity_delete")
@@ -125,7 +121,6 @@ public class CartPage
         await row.WaitForAsync(new()
         {
             State = WaitForSelectorState.Detached,
-            Timeout = 15000
         });
     }
 

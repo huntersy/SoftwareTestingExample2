@@ -52,14 +52,12 @@ public class LoginPage
             new PageGotoOptions
             {
                 WaitUntil = WaitUntilState.DOMContentLoaded,
-                Timeout = 30000
             }
         );
 
         await LoginHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 
@@ -94,7 +92,6 @@ public class LoginPage
         await LoginHeading.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
-            Timeout = 15000
         });
     }
 }
