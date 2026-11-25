@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+<title id="title">Playwright NUnit CI verified results</title>
+<desc id="desc">Verified GitHub Actions execution: successful build and browser setup, 40 tests passed, zero failed, zero skipped, and successful report and artifact publishing.</desc>
+<rect width="1200" height="520" rx="28" fill="#0d1117"/>
+<text x="64" y="78" fill="#f0f6fc" font-family="Arial,sans-serif" font-size="32" font-weight="700">Playwright NUnit — CI verification</text>
+<text x="64" y="116" fill="#8b949e" font-family="Arial,sans-serif" font-size="18">GitHub Actions · .NET 8 · Chromium · NUnit · Verified run eef931e</text>
+<rect x="64" y="154" width="1072" height="190" rx="18" fill="#161b22" stroke="#30363d"/>
+<text x="104" y="218" fill="#3fb950" font-family="Arial,sans-serif" font-size="68" font-weight="700">40 / 40</text>
+<text x="106" y="258" fill="#f0f6fc" font-family="Arial,sans-serif" font-size="22" font-weight="600">automated tests passed</text>
+<text x="106" y="294" fill="#8b949e" font-family="Arial,sans-serif" font-size="16">0 failed  ·  0 skipped</text>
+<line x1="560" y1="190" x2="560" y2="310" stroke="#30363d"/>
+<g font-family="Arial,sans-serif">
+<circle cx="620" cy="214" r="8" fill="#3fb950"/><text x="646" y="221" fill="#c9d1d9" font-size="19">Release build — successful</text>
+<circle cx="620" cy="254" r="8" fill="#3fb950"/><text x="646" y="261" fill="#c9d1d9" font-size="19">Chromium installation — successful</text>
+<circle cx="620" cy="294" r="8" fill="#3fb950"/><text x="646" y="301" fill="#c9d1d9" font-size="19">TRX report and artifact upload — successful</text>
+</g>
+<text x="64" y="400" fill="#f0f6fc" font-family="Arial,sans-serif" font-size="20" font-weight="600">Framework evidence</text>
+<g font-family="Arial,sans-serif" font-size="16" fill="#c9d1d9">
+<rect x="64" y="424" width="250" height="54" rx="10" fill="#21262d"/><text x="86" y="457">8 NUnit test classes</text>
+<rect x="332" y="424" width="250" height="54" rx="10" fill="#21262d"/><text x="354" y="457">Structured JSON logging</text>
+<rect x="600" y="424" width="250" height="54" rx="10" fill="#21262d"/><text x="622" y="457">Playwright trace diagnostics</text>
+<rect x="868" y="424" width="268" height="54" rx="10" fill="#21262d"/><text x="890" y="457">Automated CI test reporting</text>
+</g>
+</svg>
