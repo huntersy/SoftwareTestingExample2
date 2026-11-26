@@ -26,6 +26,7 @@ public class ShoppingCartTests : UiTest
 
     // TC23: Verify that a product can be added to the cart.
     [Test]
+    [Category("Smoke")]
     public async Task TC23_AddProductToCartDisplaysConfirmation()
     {
         var productsPage = new ProductsPage(Page);

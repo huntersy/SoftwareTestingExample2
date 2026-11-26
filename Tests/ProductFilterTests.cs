@@ -9,6 +9,7 @@ namespace SoftwareTestingExample.Tests;
 public class ProductFilterTests : UiTest
 {
     [Test]
+    [Category("Smoke")]
     public async Task TC12_WomenTopsCategoryDisplaysProducts()
     {
         var homePage = new HomePage(Page);

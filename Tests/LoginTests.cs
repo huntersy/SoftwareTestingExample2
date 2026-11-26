@@ -11,6 +11,7 @@ public class LoginTests : UiTest
         $"qa{Guid.NewGuid():N}@example.com";
 
     [Test]
+    [Category("Smoke")]
     public async Task TC31_LoginPageDisplaysRequiredFields()
     {
         var loginPage = new LoginPage(Page);

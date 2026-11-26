@@ -10,6 +10,7 @@ namespace SoftwareTestingExample.Tests;
 public class ProductSearchTests : UiTest
 {
     [Test]
+    [Category("Smoke")]
     public async Task TC06_SearchReturnsMatchingProducts()
     {
         var productsPage = new ProductsPage(Page);

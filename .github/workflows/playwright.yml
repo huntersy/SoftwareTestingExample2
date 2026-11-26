@@ -1,12 +1,8 @@
-name: Playwright NUnit CI
+name: Playwright Full Regression
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -14,20 +10,17 @@ permissions:
   checks: write
 
 jobs:
-  test:
-    name: Build and Run Playwright Tests
+  regression:
+    name: Build and Run Full Regression Suite
     runs-on: windows-latest
     timeout-minutes: 30
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -35,36 +28,29 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-
       - name: Restore dependencies
         run: dotnet restore
-
       - name: Build project
         run: dotnet build --no-restore --configuration Release
-
       - name: Install Playwright Chromium
         shell: pwsh
-        run: |
-          .\bin\Release\net8.0\playwright.ps1 install chromium
-
-      - name: Run NUnit tests
-        run: dotnet test --no-build --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
-
-      - name: Publish NUnit test report
+        run: .\bin\Release\net8.0\playwright.ps1 install chromium
+      - name: Run full regression suite
+        run: dotnet test --no-build --no-restore --configuration Release --logger "trx;LogFileName=regression-results.trx" --results-directory TestResults
+      - name: Publish NUnit regression test report
         if: always()
         uses: dorny/test-reporter@v2
         with:
-          name: Playwright NUnit Test Results
+          name: Playwright Full Regression Results
           path: TestResults/*.trx
           reporter: dotnet-trx
           list-tests: all
           fail-on-empty: false
-
-      - name: Upload test and failure diagnostic artifacts
+      - name: Upload regression test and failure diagnostic artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-test-artifacts
+          name: playwright-regression-artifacts
           path: |
             TestResults/**/*.trx
             **/TestResults/FailureArtifacts/**

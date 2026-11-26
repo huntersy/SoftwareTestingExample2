@@ -10,6 +10,7 @@ namespace SoftwareTestingExample.Tests;
 public class HomePageTests : UiTest
 {
     [Test]
+    [Category("Smoke")]
     public async Task Homepage_ShouldLoadSuccessfully()
     {
         var homePage = new HomePage(Page);

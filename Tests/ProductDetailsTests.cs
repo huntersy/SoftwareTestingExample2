@@ -28,6 +28,7 @@ public class ProductDetailsTests : UiTest
     }
 
     [Test]
+    [Category("Smoke")]
     public async Task TC11_OpenProductFromSearchResults()
     {
         var productDetailsPage = await OpenBlueTopDetailsAsync();

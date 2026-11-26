@@ -15,7 +15,7 @@ A C# browser automation framework built with **Microsoft Playwright for .NET**, 
 - Structured JSON test lifecycle and diagnostic logging written to NUnit test output.
 - Playwright tracing for every test and failure-only screenshots and trace archives.
 - Configurable base URL through the \`BASE_URL\` environment variable.
-- GitHub Actions workflow for automated build, browser setup, test execution, NUnit/TRX reporting, and artifact upload.
+- Separate GitHub Actions workflows for smoke validation on pushes and pull requests, plus scheduled/manual full regression execution; both publish NUnit/TRX reports and diagnostic artifacts.
 - NuGet package caching in GitHub Actions to reduce dependency restore work on subsequent runs.
 - Documented REST API test-account provisioning and cleanup for registered checkout scenarios; checkout authentication and all purchase steps remain browser-driven.
 - Dedicated UI registration coverage remains in TC33.
@@ -312,6 +312,29 @@ The Trace Viewer makes it possible to inspect recorded actions, page snapshots, 
 ### Structured test logging
 
 \`Utilities/TestLogger.cs\` writes one JSON record per framework event to NUnit's test output. Records include a UTC timestamp, severity level, event name, test class and test name, optional event properties, and exception details when available. The shared \`UiTest\` lifecycle logs test start and outcome, trace start and stop, screenshot and trace artifact paths, and diagnostic-capture errors. This keeps machine-readable event details alongside the test results without adding a separate logging dependency.
+
+## Test execution strategy: Smoke and Full Regression
+
+All 40 tests remain in one NUnit project and share the same Page Object Model, configuration, account provisioning, and diagnostics. Six representative critical-path tests carry the NUnit `Smoke` category; these same tests are included in the full regression run.
+
+| Suite | Scope | Trigger |
+|---|---|---|
+| Smoke E2E | 6 critical-path tests: homepage, product search, product details, category filtering, add-to-cart confirmation, and login form | Every push and pull request to `main`; manual |
+| Full Regression E2E | All 40 tests across 8 classes | Nightly at 06:00 UTC; manual |
+
+Run the smoke suite locally:
+
+```bash
+dotnet test --configuration Release --filter "TestCategory=Smoke"
+```
+
+Run the complete regression suite locally:
+
+```bash
+dotnet test --configuration Release
+```
+
+The [Smoke E2E workflow](.github/workflows/smoke.yml) provides fast CI feedback. The [Full Regression workflow](.github/workflows/playwright.yml) runs the entire suite nightly or on demand. Both workflows build the same project, install Chromium, publish NUnit TRX reports, and upload failure diagnostics. Tests remain sequential to protect the public practice application from excess load.
 
 ## Continuous integration — GitHub Actions
 
