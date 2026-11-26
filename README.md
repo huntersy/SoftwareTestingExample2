@@ -1,429 +1,98 @@
-# SoftwareTestingExample2 — Playwright NUnit Automation Framework
+# SoftwareTestingExample2 — SauceDemo Playwright NUnit Framework
 
-[![Playwright NUnit CI](https://github.com/huntersy/SoftwareTestingExample2/actions/workflows/playwright.yml/badge.svg)](https://github.com/huntersy/SoftwareTestingExample2/actions/workflows/playwright.yml)
+C# end-to-end UI automation using .NET 8, Microsoft Playwright, NUnit, and the Page Object Model.
 
-A C# browser automation framework built with **Microsoft Playwright for .NET**, **NUnit**, and the **Page Object Model (POM)**. The project automates end-to-end user journeys against the [Automation Exercise](https://automationexercise.com/) practice application.
+- **Application:** https://www.saucedemo.com/
+- **Framework:** Playwright .NET 1.64.1 / NUnit 3.14
+- **Coverage:** 40 automated UI tests across 8 classes
+- **Browser:** Chromium; tests execute sequentially
+- **CI:** GitHub Actions smoke and full-regression workflows
 
-**Repository:** https://github.com/huntersy/SoftwareTestingExample2  
-**Application under test:** https://automationexercise.com/
+## Test accounts
 
-## Project highlights
+| Username | Password | Expected behavior |
+|---|---|---|
+| standard_user | secret_sauce | Normal inventory, cart, checkout flows |
+| locked_out_user | secret_sauce | Login blocked with explanatory message |
 
-- 40 NUnit automated UI tests organized across 8 test classes.
-- Page Object Model with reusable page-level actions and locators.
-- Coverage spanning homepage, product search and details, shopping cart, login, registration, and checkout.
-- Structured JSON test lifecycle and diagnostic logging written to NUnit test output.
-- Playwright tracing for every test and failure-only screenshots and trace archives.
-- Configurable base URL through the \`BASE_URL\` environment variable.
-- Separate GitHub Actions workflows for smoke validation on pushes and pull requests, plus scheduled/manual full regression execution; both publish NUnit/TRX reports and diagnostic artifacts.
-- NuGet package caching in GitHub Actions to reduce dependency restore work on subsequent runs.
-- Documented REST API test-account provisioning and cleanup for registered checkout scenarios; checkout authentication and all purchase steps remain browser-driven.
-- Dedicated UI registration coverage remains in TC33.
+SauceDemo supplies seeded accounts. The project does not create customer accounts, use registration endpoints, or rely on account-provisioning APIs.
 
-## Latest verified end-to-end execution
+## Test coverage (40)
 
-The latest verified workflow is **GitHub Actions run #49**, for commit \`0b917cf\` (full SHA: \`0b917cfaf923a656874153736d5fa1bd0da78b48\`).
+| Class | Count | Scenarios |
+|---|---:|---|
+| HomePageTests | 5 | Inventory access, heading, catalog count, URL, initial cart badge |
+| ProductSearchTests | 8 | Catalog content, product data, descriptions, prices, images, controls |
+| ProductDetailsTests | 4 | Name, description, price, return navigation |
+| ProductFilterTests | 4 | Name A–Z/Z–A and price low–high/high–low sorting |
+| ShoppingCartTests | 8 | Add/remove, badge, contents, price, quantity, multiple items, navigation |
+| LoginTests | 5 | Valid, locked-out, invalid username/password, empty credentials |
+| RegistrationTests | 1 | Authenticated logout (registration is not a SauceDemo feature) |
+| CheckoutTests | 5 | Required information, field validation, successful purchase |
+| **Total** | **40** | |
 
-<badge color="success">40 passed · 0 failed · 0 skipped</badge>
+The former Automation Exercise search, category, registration, invoice, and account API tests were replaced with functionality supported by SauceDemo.
 
-| Measurement | Latest verified result |
-|---|---:|
-| Total NUnit tests | 40 |
-| Passed / failed / skipped | 40 / 0 / 0 |
-| NUnit test execution time | Approximately 1 minute 15 seconds |
-| Complete GitHub Actions workflow | Approximately 2 minutes 19 seconds |
-| Release build | Successful, 0 warnings and 0 errors |
-| Test report and artifact upload | Successful |
+## Smoke and regression
 
-**End-to-end runtime:** Allow approximately **2 minutes 20 seconds for a complete CI run** based on this measured execution. The test suite itself took approximately 75 seconds; the remaining time covers runner setup, dependency restore, build, browser installation, report publication, and artifact upload. Actual duration can vary with GitHub-hosted runner startup, network conditions, cache status, and the response time of the public test application.
+Six tests are tagged `Smoke`: inventory access, backpack listing, product details, alphabetical sorting, add-to-cart badge, and checkout validation.
 
-### Why the end-to-end suite takes longer than a unit-test suite
+```powershell
+dotnet test --configuration Release --filter "TestCategory=Smoke"
+dotnet test --configuration Release
+```
 
-This is a browser-based end-to-end (E2E) suite, not a collection of isolated unit tests. Each scenario drives a real Chromium browser through application pages and user workflows. The runtime is affected by several factors:
+| Workflow | Trigger | Scope |
+|---|---|---|
+| [Smoke E2E](.github/workflows/smoke.yml) | Push/PR to main, manual | 6 tests |
+| [Full Regression](.github/workflows/playwright.yml) | Nightly 06:00 UTC, manual | 40 tests |
 
-- **Real browser activity:** tests navigate between pages, wait for elements, enter data, click controls, and verify rendered results. These operations take longer than testing an individual method in memory.
-- **External application and network latency:** the tests use a public practice website outside this repository's control. Page load times, server response times, and availability can vary.
-- **Sequential execution:** tests currently run sequentially. The public site previously returned queue-full / heavy-load responses when under pressure, so parallel execution is intentionally not enabled. This favors reliable results over a potentially faster but less stable run.
-- **Diagnostics:** Playwright tracing is started for every test, and structured test lifecycle events are recorded. Screenshots and trace ZIP files are retained for failed tests to support investigation.
-- **CI setup and reporting:** GitHub Actions must prepare the .NET environment, restore dependencies, build the project, install Chromium, execute tests, publish the NUnit report, and upload artifacts.
+Both workflows restore/build, cache NuGet packages, install Chromium, publish NUnit TRX reports, and upload failure diagnostics for 14 days.
 
-The workflow now caches NuGet packages. Run #49 was the first run using this cache, so it populated the cache rather than benefiting from a cache hit. The cache is expected to reduce restore time on later runs. Chromium browser binaries are not cached by this workflow; the runner installs the Playwright browser required for the current Playwright version.
+## Architecture
 
-The measured duration is therefore a practical full-pipeline baseline, not a fixed performance guarantee. The current priority is to preserve all 40 UI scenarios and their diagnostics while avoiding instability caused by overloading the external practice site.
+```text
+Pages/       BasePage, LoginPage, ProductsPage, ProductDetailsPage, CartPage, CheckoutPage
+TestData/    TestUsers
+Tests/       8 NUnit test classes + UiTests lifecycle
+Utilities/   TestConfig, TestLogger
+.github/     smoke.yml, playwright.yml
+```
 
-- [Open successful GitHub Actions run #49](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/45776757071)
-- [View the commit and published NUnit Checks report](https://github.com/huntersy/SoftwareTestingExample2/commit/0b917cfaf923a656874153736d5fa1bd0da78b48/checks)
-- [Download or inspect workflow artifacts](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/45776757071#artifacts)
+## Local setup (Windows PowerShell)
 
-## Technology stack
+Prerequisites: Git and .NET 8 SDK.
 
-| Technology | Version / role |
-|---|---|
-| C# | Test implementation language |
-| .NET | 8.0 |
-| Microsoft.Playwright.NUnit | 1.64.1 |
-| NUnit | 3.14.0 |
-| NUnit3TestAdapter | 4.5.0 |
-| Microsoft.NET.Test.Sdk | 17.8.0 |
-| NUnit.Analyzers | 3.9.0 |
-| coverlet.collector | 6.0.0 (dependency included; coverage collection is not currently part of the CI workflow) |
-| Browser in CI | Chromium |
-| IDE | Visual Studio Code |
-| Source control | Git and GitHub |
-| CI | GitHub Actions |
-
-## Framework architecture
-
-The project uses the Page Object Model to separate test intent from browser interaction details.
-
-### Architecture at a glance
-
-\`\`\`mermaid
-flowchart TD
-    CI[GitHub Actions] --> Pipeline[Restore · Build · Chromium · Test · Report]
-    Pipeline --> Tests
-
-    subgraph Framework[Playwright NUnit Framework]
-        Tests[Test classes · 40 NUnit tests] --> Base[UiTest · shared Playwright lifecycle]
-        Base --> Pages[Page Objects · locators and page actions]
-        Config[TestConfig · BASE_URL] --> Pages
-        Pages --> Browser[Playwright Page / Browser]
-    end
-
-    Browser --> AUT[Automation Exercise]
-    Base --> Diagnostics[Failure screenshot and trace]
-    Pipeline --> Results[TRX report and CI artifacts]
-\`\`\`
-
-Test classes define scenarios and assertions; \`UiTest\` provides the common Playwright test lifecycle and failure diagnostics. Page objects encapsulate browser interactions, while \`TestConfig\` supplies the application base URL. GitHub Actions builds the project, runs the suite, publishes the TRX report, and uploads available artifacts.
-
-- **Tests** contain scenario steps and NUnit assertions.
-- **Pages** encapsulate page-specific locators and reusable actions.
-- **Utilities** centralize shared configuration and REST API test-account setup.
-- **TestData** is reserved for reusable test data.
-- **UiTest** is the common NUnit/Playwright test base. It starts a Playwright trace for each test and, when a test fails, attempts to save a full-page screenshot and trace ZIP.
-
-### Page objects
-
-| Page object | Responsibility |
-|---|---|
-| \`HomePage\` | Homepage navigation and category interactions |
-| \`ProductsPage\` | Product listing, search, product selection, and add-to-cart interactions |
-| \`ProductDetailsPage\` | Product information, quantity, and add-to-cart actions |
-| \`CartPage\` | Cart contents, quantities, totals, and item removal |
-| \`LoginPage\` | Login form and logged-in/logged-out state |
-| \`RegisterPage\` | UI registration and account confirmation |
-| \`TestAccountApi\` | Creates and deletes disposable checkout test accounts through the documented REST API |
-| \`CheckoutPage\` | Checkout details, addresses, payment, order confirmation, and invoice retrieval |
-
-## Automated test coverage
-
-The current repository contains **40 NUnit test methods across 8 test classes**. The five registered-user checkout scenarios use the documented account API for disposable test-data setup and cleanup; login, cart, checkout, and purchase assertions remain UI-driven.
-
-| Test area | Test class | Tests |
-|---|---|---:|
-| Homepage and navigation | \`HomePageTests\` | 5 |
-| Product search and input validation | \`ProductSearchTests\` | 12 |
-| Product details | \`ProductDetailsTests\` | 4 |
-| Product category filtering | \`ProductFilterTests\` | 1 |
-| Shopping cart | \`ShoppingCartTests\` | 8 |
-| Login and authentication | \`LoginTests\` | 3 |
-| User registration | \`RegistrationTests\` | 1 |
-| Checkout and order completion | \`CheckoutTests\` | 6 |
-| **Total** | **8 test classes** | **40** |
-
-### Test scenarios
-
-<details>
-<summary><strong>Homepage and navigation — 5 tests</strong></summary>
-
-- \`Homepage_ShouldLoadSuccessfully\` — verifies the homepage loads and has a title.
-- \`TC02_ProductsPageSearchBoxIsVisible\` — verifies the product search field is visible.
-- \`TC03_WomenCategoryExpandsSuccessfully\` — verifies the Women category expands.
-- \`TC04_HomepageUrlIsCorrect\` — verifies the homepage URL.
-- \`TC05_HomepageDisplaysProducts\` — verifies products are displayed on the homepage.
-
-</details>
-
-<details>
-<summary><strong>Product search — 12 tests</strong></summary>
-
-- \`TC06_SearchReturnsMatchingProducts\` — matching product search.
-- \`TC07_SearchReturnsNoMatchingProducts\` — no-results behavior.
-- \`TC08_SearchReturnsProductsUsingPartialName\` — partial-name search.
-- \`TC09_SearchReturnsDressProducts\` — dress search results.
-- \`TC10_SearchResultsCountMatchesDisplayedProducts\` — result-count consistency.
-- \`TC13_SearchResultsHeadingIsDisplayed\` — searched-products heading.
-- \`TC14_SearchReturnsMatchingProductsForUppercaseInput\` — case-insensitive search behavior.
-- \`TC15_SearchForDressReturnsRelevantProducts\` — relevance of dress results.
-- \`TC16_SearchReturnsSareeProducts\` — saree search results.
-- \`TC17_SearchResultsDisplayPrices\` — currency formatting for displayed prices.
-- \`TC21_EmptySearchTermIsRejected\` — empty input validation.
-- \`TC22_WhitespaceSearchTermIsRejected\` — whitespace-only input validation.
-
-</details>
-
-<details>
-<summary><strong>Product details and category filtering — 5 tests</strong></summary>
-
-- \`TC11_OpenProductFromSearchResults\` — opens a product from search results.
-- \`TC12_WomenTopsCategoryDisplaysProducts\` — verifies products in the Women Tops category.
-- \`TC18_ProductDetailsDisplayCategory\` — verifies product category information.
-- \`TC19_ProductDetailsDisplayPrice\` — verifies product price information.
-- \`TC20_ProductDetailsDisplayInventoryAndBrandInformation\` — verifies availability and brand information.
-
-</details>
-
-<details>
-<summary><strong>Shopping cart — 8 tests</strong></summary>
-
-- \`TC23_AddProductToCartDisplaysConfirmation\` — add-to-cart confirmation.
-- \`TC24_AddedProductAppearsInCart\` — verifies the product appears in the cart.
-- \`TC25_CartDisplaysCorrectProductDetails\` — verifies product, price, quantity, and total.
-- \`TC26_ProductQuantityCanBeSetBeforeAddingToCart\` — verifies quantity selection.
-- \`TC27_ProductCanBeRemovedFromCart\` — verifies cart item removal and empty-cart state.
-- \`TC28_MultipleProductsCanBeAddedToCart\` — verifies multiple products can be added.
-- \`TC29_CartContentsRemainAfterPageRefresh\` — verifies cart contents after refresh.
-- \`TC30_CartTotalReflectsSelectedQuantity\` — verifies total calculation for selected quantity.
-
-</details>
-
-<details>
-<summary><strong>Login and registration — 4 tests</strong></summary>
-
-- \`TC31_LoginPageDisplaysRequiredFields\` — verifies required login fields.
-- \`TC32_InvalidLoginDisplaysErrorMessage\` — verifies invalid-login feedback.
-- \`TC33_NewUserCanRegisterSuccessfully\` — registers a unique test user, verifies the account, and deletes the test account.
-- \`TC34_RegisteredUserCanLogoutAndLoginAgain\` — verifies logout and subsequent login.
-
-</details>
-
-<details>
-<summary><strong>Checkout and order completion — 6 tests</strong></summary>
-
-- \`TC35_GuestCheckoutRequiresRegistrationOrLogin\` — verifies guest checkout access control.
-- \`TC36_CheckoutDisplaysCorrectDeliveryAndBillingAddresses\` — verifies delivery and billing addresses.
-- \`TC37_CheckoutDisplaysCorrectOrderDetails\` — verifies checkout order details.
-- \`TC38_RegisteredCustomerCanPlaceOrderSuccessfully\` — verifies a registered customer can complete an order.
-- \`TC39_CustomerCanDownloadInvoiceAfterPurchase\` — retrieves and validates the generated invoice.
-- \`TC40_CartIsEmptyAfterSuccessfulOrder\` — verifies cart state after order completion.
-
-</details>
-
-## Getting started
-
-### Prerequisites
-
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Git](https://git-scm.com/downloads)
-- A supported operating system for Playwright browser execution
-- Internet access to the practice application
-
-### 1. Clone the repository
-
-\`\`\`bash
+```powershell
 git clone https://github.com/huntersy/SoftwareTestingExample2.git
 cd SoftwareTestingExample2
-\`\`\`
-
-### 2. Restore dependencies and build
-
-\`\`\`bash
 dotnet restore
-dotnet build --configuration Release
-\`\`\`
-
-### 3. Install the Playwright Chromium browser
-
-**Linux / WSL:**
-
-\`\`\`bash
-./bin/Release/net8.0/playwright.sh install chromium
-\`\`\`
-
-**Windows PowerShell:**
-
-\`\`\`powershell
-.\\bin\\Release\\net8.0\\playwright.ps1 install chromium
-\`\`\`
-
-### 4. Run the test suite
-
-\`\`\`bash
-dotnet test --configuration Release
-\`\`\`
-
-Run an individual test by name:
-
-\`\`\`bash
-dotnet test --configuration Release --filter "FullyQualifiedName~TC06_SearchReturnsMatchingProducts"
-\`\`\`
-
-List the tests discovered by NUnit:
-
-\`\`\`bash
-dotnet test --list-tests
-\`\`\`
-
-## Environment configuration
-
-The application base URL is centralized in \`Utilities/TestConfig.cs\`.
-
-Default:
-
-\`\`\`text
-https://automationexercise.com/
-\`\`\`
-
-Set \`BASE_URL\` to run against another authorized test environment without changing the page objects.
-
-**Linux / WSL:**
-
-\`\`\`bash
-export BASE_URL="https://your-authorized-test-environment.example"
-dotnet test --configuration Release
-\`\`\`
-
-**Windows PowerShell:**
-
-\`\`\`powershell
-$env:BASE_URL = "https://your-authorized-test-environment.example"
-dotnet test --configuration Release
-\`\`\`
-
-## Failure diagnostics
-
-All test classes inherit from \`UiTest\` in \`Tests/UiTests.cs\`.
-
-- A Playwright trace is started for each test with screenshots, DOM snapshots, and source capture enabled.
-- Successful tests stop tracing without writing a trace archive.
-- Failed tests attempt to save a full-page PNG screenshot and a Playwright trace ZIP.
-- Diagnostic files are written under the test work directory in \`TestResults/FailureArtifacts/\`.
-- The CI workflow uploads matching diagnostic files as artifacts, even when a test run fails.
-
-A trace ZIP can be opened with the Playwright Trace Viewer:
-
-\`\`\`bash
-./bin/Release/net8.0/playwright.sh show-trace path/to/trace.zip
-\`\`\`
-
-The Trace Viewer makes it possible to inspect recorded actions, page snapshots, network activity, and captured screenshots to help investigate failures.
-
-### Structured test logging
-
-\`Utilities/TestLogger.cs\` writes one JSON record per framework event to NUnit's test output. Records include a UTC timestamp, severity level, event name, test class and test name, optional event properties, and exception details when available. The shared \`UiTest\` lifecycle logs test start and outcome, trace start and stop, screenshot and trace artifact paths, and diagnostic-capture errors. This keeps machine-readable event details alongside the test results without adding a separate logging dependency.
-
-## Test execution strategy: Smoke and Full Regression
-
-All 40 tests remain in one NUnit project and share the same Page Object Model, configuration, account provisioning, and diagnostics. Six representative critical-path tests carry the NUnit `Smoke` category; these same tests are included in the full regression run.
-
-| Suite | Scope | Trigger |
-|---|---|---|
-| Smoke E2E | 6 critical-path tests: homepage, product search, product details, category filtering, add-to-cart confirmation, and login form | Every push and pull request to `main`; manual |
-| Full Regression E2E | All 40 tests across 8 classes | Nightly at 06:00 UTC; manual |
-
-Run the smoke suite locally:
-
-```bash
-dotnet test --configuration Release --filter "TestCategory=Smoke"
+dotnet build
+.\bin\Debug\net8.0\playwright.ps1 install chromium
+dotnet test
 ```
 
-Run the complete regression suite locally:
+## Configuration
 
-```bash
+The default URL is `https://www.saucedemo.com`, centralized in `Utilities/TestConfig.cs`. Override with `BASE_URL` when using an authorized compatible environment:
+
+```powershell
+$env:BASE_URL = "https://www.saucedemo.com"
 dotnet test --configuration Release
 ```
 
-The [Smoke E2E workflow](.github/workflows/smoke.yml) provides fast CI feedback. The [Full Regression workflow](.github/workflows/playwright.yml) runs the entire suite nightly or on demand. Both workflows build the same project, install Chromium, publish NUnit TRX reports, and upload failure diagnostics. Tests remain sequential to protect the public practice application from excess load.
+The default Playwright timeout is 15 seconds. Tests use isolated browser contexts and execute sequentially to prevent shared demo-account state collisions.
 
-## Continuous integration — GitHub Actions
+## Diagnostics
 
-Workflow file: [\`.github/workflows/playwright.yml\`](.github/workflows/playwright.yml)
+A Playwright trace (screenshots, DOM snapshots, and source capture) starts for every test. Passing tests stop tracing without saving an archive. Failed tests save a full-page PNG and trace ZIP under `TestResults/FailureArtifacts`. Structured JSON lifecycle events are written to NUnit output. CI uploads TRX reports and available failure diagnostics.
 
-The workflow runs on:
+View a trace:
 
-- Pushes to \`main\`
-- Pull requests targeting \`main\`
-- Manual execution using \`workflow_dispatch\`
+```powershell
+.\bin\Release\net8.0\playwright.ps1 show-trace path\to\trace.zip
+```
 
-### CI pipeline
+## Reliability notes
 
-1. Checks out the repository.
-2. Sets up the .NET 8 SDK.
-3. Restores NuGet dependencies, using the GitHub Actions NuGet cache when a matching cache is available.
-4. Builds the project in Release configuration.
-5. Installs Playwright Chromium.
-6. Runs the NUnit suite and writes a TRX results file.
-7. Publishes a test report using \`dorny/test-reporter\`.
-8. Uploads the TRX results and any failure diagnostics as a downloadable artifact (14-day retention).
-
-### Verified CI execution
-
-The latest successful workflow is **run #49**, for commit **\`0b917cf\`** (full SHA: \`0b917cfaf923a656874153736d5fa1bd0da78b48\`).
-
-| Result | Count / duration |
-|---|---:|
-| Passed | 40 |
-| Failed | 0 |
-| Skipped | 0 |
-| Total | 40 |
-| NUnit test execution | Approximately 75 seconds |
-| Complete workflow | Approximately 2 minutes 19 seconds |
-
-The run completed with a successful Release build (0 warnings and 0 errors), Chromium installation, NUnit execution, test-report publication, and artifact upload. The NuGet cache was populated successfully during this run; a later run can use it to reduce dependency restore work.
-
-- [View successful GitHub Actions run #49](https://github.com/huntersy/SoftwareTestingExample2/actions/runs/45776757071)
-- [View the commit checks and NUnit report](https://github.com/huntersy/SoftwareTestingExample2/commit/0b917cfaf923a656874153736d5fa1bd0da78b48/checks)
-
-CI results are specific to the commit and execution shown above; later code changes should be validated by a new workflow run. Workflow duration varies with runner startup, network and application response times, and cache availability.
-
-## Repository structure
-
-\`\`\`text
-SoftwareTestingExample2/
-├── .github/
-│   └── workflows/
-│       └── playwright.yml
-├── Pages/
-│   ├── BasePage.cs
-│   ├── CartPage.cs
-│   ├── CheckoutPage.cs
-│   ├── HomePage.cs
-│   ├── LoginPage.cs
-│   ├── ProductDetailsPage.cs
-│   ├── ProductsPage.cs
-│   └── RegisterPage.cs
-├── TestData/
-│   └── TestUsers.cs
-├── Tests/
-│   ├── CheckoutTests.cs
-│   ├── HomePageTests.cs
-│   ├── LoginTests.cs
-│   ├── ProductDetailsTests.cs
-│   ├── ProductFilterTests.cs
-│   ├── ProductSearchTests.cs
-│   ├── RegistrationTests.cs
-│   ├── ShoppingCartTests.cs
-│   └── UiTests.cs
-├── Utilities/
-│   ├── TestAccountApi.cs
-│   ├── TestConfig.cs
-│   └── TestLogger.cs
-├── SoftwareTestingExample.csproj
-├── README.md
-└── .gitignore
-\`\`\`
-
-## Scope and considerations
-
-- This is an end-to-end UI automation project; Chromium is the browser installed by the current CI workflow.
-- Tests interact with a public practice website. Its availability, data, catalog, and interface can change independently of this repository.
-- Registered-user checkout tests use the site's documented \`POST /api/createAccount\` and \`DELETE /api/deleteAccount\` endpoints only for disposable test-data setup and cleanup. The user login and checkout journeys remain browser UI tests.
-- Registration and checkout tests create test accounts and perform actions on the practice application. Use only environments where such activity is permitted.
-- Payment details used by the checkout scenarios are synthetic test values for the practice site; do not use real payment information.
-- The project includes the Coverlet collector package, but the current workflow does not publish a code-coverage report.
-- Firefox, WebKit, parallel execution, and API test suites are not currently configured as part of this project.
-
-## Project objective
-
-This repository demonstrates practical QA automation engineering with C#, Playwright, NUnit, and the Page Object Model. It showcases maintainable test architecture, functional end-to-end coverage, reusable browser interactions, environment configuration, failure investigation, and automated CI validation.
+SauceDemo is a public demo service; hosting and availability remain outside this repository's control. The suite removes the previous application's API setup and HTTP-retry workarounds. It uses seeded accounts, isolated browser contexts, and sequential execution. Checkout verifies the demo application's simulated flow; no real payment service or customer data is used. Firefox, WebKit, parallel execution, and API testing are not configured.

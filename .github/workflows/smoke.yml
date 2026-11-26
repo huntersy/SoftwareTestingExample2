@@ -1,54 +1,46 @@
 name: Playwright Smoke E2E
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
   checks: write
-
 jobs:
   smoke:
     name: Build and Run Smoke E2E Tests
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build project
-        run: dotnet build --no-restore --configuration Release
-      - name: Install Playwright Chromium
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - name: Install Chromium
         shell: pwsh
         run: .\bin\Release\net8.0\playwright.ps1 install chromium
-      - name: Run smoke E2E tests
+      - name: Run smoke tests
         run: dotnet test --no-build --no-restore --configuration Release --filter "TestCategory=Smoke" --logger "trx;LogFileName=smoke-results.trx" --results-directory TestResults
-      - name: Publish NUnit smoke test report
+      - name: Publish NUnit report
         if: always()
         uses: dorny/test-reporter@v2
         with:
-          name: Playwright Smoke E2E Results
+          name: Playwright Smoke Results
           path: TestResults/*.trx
           reporter: dotnet-trx
           list-tests: all
           fail-on-empty: false
-      - name: Upload smoke test and failure diagnostic artifacts
+      - name: Upload reports and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
