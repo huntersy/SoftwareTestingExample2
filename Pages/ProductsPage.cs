@@ -163,18 +163,67 @@ public class ProductsPage
 
         await addToCartButton.ScrollIntoViewIfNeededAsync();
 
-        // The practice website's third-party advertisements can
-        // intercept pointer events. Force the click on the visible
-        // product-information button rather than the hover overlay.
-        await addToCartButton.ClickAsync(new()
-        {
-            Force = true
-        });
+        // The practice website can temporarily return HTTP 503 from
+        // its add-to-cart endpoint. Retry only explicit transient server
+        // responses; do not repeat a request that succeeded or whose
+        // outcome is unknown.
+        const int maxAttempts = 3;
 
-        await AddToCartModal.WaitForAsync(new()
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            State = WaitForSelectorState.Visible,
-        });
+            // Register the response wait before clicking so a fast response
+            // cannot be missed.
+            var addToCartResponseTask = _page.WaitForResponseAsync(
+                response => response.Url.EndsWith(
+                    $"/add_to_cart/{id}",
+                    StringComparison.OrdinalIgnoreCase
+                ),
+                new PageWaitForResponseOptions
+                {
+                    Timeout = TestConfig.DefaultTimeoutMilliseconds,
+                }
+            );
+
+            // The practice website's advertisements can intercept pointer
+            // events, so click the visible product-information button.
+            await addToCartButton.ClickAsync(new()
+            {
+                Force = true
+            });
+
+            var response = await addToCartResponseTask;
+
+            if (response.Status == 429 || response.Status >= 500)
+            {
+                if (attempt == maxAttempts)
+                {
+                    throw new InvalidOperationException(
+                        $"Add-to-cart request for product {id} returned HTTP " +
+                        $"{response.Status} after {maxAttempts} attempts."
+                    );
+                }
+
+                // Short bounded backoff gives the external service time to
+                // recover without adding a large delay to normal test runs.
+                await _page.WaitForTimeoutAsync(750 * attempt);
+                continue;
+            }
+
+            if (response.Status < 200 || response.Status >= 300)
+            {
+                throw new InvalidOperationException(
+                    $"Add-to-cart request for product {id} failed with HTTP " +
+                    $"{response.Status}."
+                );
+            }
+
+            await AddToCartModal.WaitForAsync(new()
+            {
+                State = WaitForSelectorState.Visible,
+            });
+
+            return;
+        }
     }
 
 
