@@ -1,5 +1,6 @@
 
 using Microsoft.Playwright;
+using SoftwareTestingExample.Utilities;
 
 namespace SoftwareTestingExample.Pages;
 
@@ -36,7 +37,25 @@ public class CartPage
             State = WaitForSelectorState.Visible,
         });
 
-        await ProceedToCheckoutButton.ClickAsync();
+        // Guests are shown the site's registration/login prompt instead
+        // of navigating to checkout. Preserve that existing UI behavior.
+        var logoutLink = _page.Locator("a[href='/logout']");
+        if (!await logoutLink.IsVisibleAsync())
+        {
+            await ProceedToCheckoutButton.ClickAsync();
+            return;
+        }
+
+        var checkoutUrl =
+            $"{TestConfig.BaseUrl.TrimEnd('/')}/checkout";
+
+        await SafeNavigation.NavigateByClickAsync(
+            _page,
+            ProceedToCheckoutButton,
+            checkoutUrl,
+            _page.Locator("#address_delivery"),
+            "Registered customer checkout navigation"
+        );
     }
 
     private ILocator ProceedToCheckoutButton =>

@@ -240,17 +240,18 @@ public class ProductsPage
 
         await ModalViewCartLink.ScrollIntoViewIfNeededAsync();
 
-        // The practice website's advertisements can intercept
-        // pointer events on the modal's View Cart link.
-        await ModalViewCartLink.ClickAsync(new()
-        {
-            Force = true
-        });
+        var cartUrl =
+            $"{TestConfig.BaseUrl.TrimEnd('/')}/view_cart";
 
-        await _page.Locator("#cart_info_table").WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
+        // This is a safe GET navigation; retry only explicit transient
+        // HTTP responses. The original click is never replayed.
+        await SafeNavigation.NavigateByClickAsync(
+            _page,
+            ModalViewCartLink,
+            cartUrl,
+            _page.Locator("#cart_info_table"),
+            "Cart navigation from add-to-cart confirmation"
+        );
     }
 
 

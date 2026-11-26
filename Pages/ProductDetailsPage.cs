@@ -1,5 +1,6 @@
 
 using Microsoft.Playwright;
+using SoftwareTestingExample.Utilities;
 
 namespace SoftwareTestingExample.Pages;
 
@@ -110,11 +111,15 @@ public class ProductDetailsPage
             State = WaitForSelectorState.Visible,
         });
 
-        await viewCartLink.ClickAsync();
+        var cartUrl =
+            $"{TestConfig.BaseUrl.TrimEnd('/')}/view_cart";
 
-        await _page.Locator("#cart_info_table").WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
+        await SafeNavigation.NavigateByClickAsync(
+            _page,
+            viewCartLink,
+            cartUrl,
+            _page.Locator("#cart_info_table"),
+            "Cart navigation from product details"
+        );
     }
 }

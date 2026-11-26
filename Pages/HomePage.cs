@@ -100,17 +100,16 @@ public class HomePage
     {
         await ExpandWomenCategoryAsync();
 
-        await WomenTopsLink.ClickAsync();
+        var categoryUrl =
+            $"{TestConfig.BaseUrl.TrimEnd('/')}/category_products/2";
 
-        await _page.WaitForURLAsync(
-            url => url.Contains("/category_products/2"),
-            new()
+        await SafeNavigation.NavigateByClickAsync(
+            _page,
+            WomenTopsLink,
+            categoryUrl,
+            ProductCards.First,
+            "Women Tops category navigation"
         );
-
-        await ProductCards.First.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
     }
 
     public async Task CloseAdvertisementIfPresentAsync()
