@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
 using SoftwareTestingExample.Pages;
 using SoftwareTestingExample.Utilities;
@@ -21,45 +20,26 @@ public class CheckoutTests : UiTest
     private static string GenerateUniqueEmail() =>
         $"qa{Guid.NewGuid():N}@example.com";
 
-    private async Task RegisterTestAccountAsync(
-        RegisterPage registerPage,
+    private async Task PrepareRegisteredCheckoutAsync(
+        TestAccountApi accountApi,
         string email,
         Action markAccountCreated)
     {
-        await registerPage.NavigateAsync();
-
-        await registerPage.StartRegistrationAsync(
-            "QA Automation",
-            email
-        );
-
-        await registerPage.CompleteRegistrationAsync(
-            TestPassword
-        );
-
-        // Mark the account as created before continuing.
+        // Use the documented API for disposable test-data setup.
+        // The login, shopping cart, and checkout journey remain UI-driven.
+        await accountApi.CreateAccountAsync(email, TestPassword);
         markAccountCreated();
 
-        await registerPage.ContinueAfterRegistrationAsync();
-
         var loginPage = new LoginPage(Page);
+
+        await loginPage.NavigateAsync();
+        await loginPage.LoginAsync(email, TestPassword);
+        await loginPage.WaitForLoggedInAsync();
 
         Assert.That(
             await loginPage.IsLoggedInAsync(),
             Is.True,
-            "The newly registered test account should be logged in."
-        );
-    }
-
-    private async Task PrepareRegisteredCheckoutAsync(
-        RegisterPage registerPage,
-        string email,
-        Action markAccountCreated)
-    {
-        await RegisterTestAccountAsync(
-            registerPage,
-            email,
-            markAccountCreated
+            "The API-created test account should be able to log in through the UI."
         );
 
         var productsPage = new ProductsPage(Page);
@@ -98,7 +78,8 @@ public class CheckoutTests : UiTest
     }
 
     private async Task CleanupTestAccountAsync(
-        RegisterPage registerPage,
+        TestAccountApi accountApi,
+        string email,
         bool accountCreated)
     {
         if (!accountCreated)
@@ -108,24 +89,17 @@ public class CheckoutTests : UiTest
 
         try
         {
-            // If registration completed but Continue failed,
-            // leave the account-created page before deleting.
-            if (await registerPage.IsAccountCreatedAsync())
-            {
-                await registerPage.ContinueAfterRegistrationAsync();
-            }
-
-            await registerPage.DeleteAccountAsync();
+            await accountApi.DeleteAccountAsync(email, TestPassword);
 
             TestContext.Progress.WriteLine(
-                "Test account cleanup completed."
+                "Test account cleanup completed through the documented API."
             );
         }
         catch (Exception exception)
         {
             // Do not hide the original test failure if cleanup fails.
             TestContext.Progress.WriteLine(
-                $"Test account cleanup could not complete: {exception.Message}"
+                $"Test account API cleanup could not complete: {exception.Message}"
             );
         }
     }
@@ -161,14 +135,14 @@ public class CheckoutTests : UiTest
     [Test]
     public async Task TC36_CheckoutDisplaysCorrectDeliveryAndBillingAddresses()
     {
-        var registerPage = new RegisterPage(Page);
+        using var accountApi = new TestAccountApi();
         var email = GenerateUniqueEmail();
         var accountCreated = false;
 
         try
         {
             await PrepareRegisteredCheckoutAsync(
-                registerPage,
+                accountApi,
                 email,
                 () => accountCreated = true
             );
@@ -223,7 +197,8 @@ public class CheckoutTests : UiTest
         finally
         {
             await CleanupTestAccountAsync(
-                registerPage,
+                accountApi,
+                email,
                 accountCreated
             );
         }
@@ -233,14 +208,14 @@ public class CheckoutTests : UiTest
     [Test]
     public async Task TC37_CheckoutDisplaysCorrectOrderDetails()
     {
-        var registerPage = new RegisterPage(Page);
+        using var accountApi = new TestAccountApi();
         var email = GenerateUniqueEmail();
         var accountCreated = false;
 
         try
         {
             await PrepareRegisteredCheckoutAsync(
-                registerPage,
+                accountApi,
                 email,
                 () => accountCreated = true
             );
@@ -289,7 +264,8 @@ public class CheckoutTests : UiTest
         finally
         {
             await CleanupTestAccountAsync(
-                registerPage,
+                accountApi,
+                email,
                 accountCreated
             );
         }
@@ -299,14 +275,14 @@ public class CheckoutTests : UiTest
     [Test]
     public async Task TC38_RegisteredCustomerCanPlaceOrderSuccessfully()
     {
-        var registerPage = new RegisterPage(Page);
+        using var accountApi = new TestAccountApi();
         var email = GenerateUniqueEmail();
         var accountCreated = false;
 
         try
         {
             await PrepareRegisteredCheckoutAsync(
-                registerPage,
+                accountApi,
                 email,
                 () => accountCreated = true
             );
@@ -324,7 +300,8 @@ public class CheckoutTests : UiTest
         finally
         {
             await CleanupTestAccountAsync(
-                registerPage,
+                accountApi,
+                email,
                 accountCreated
             );
         }
@@ -334,7 +311,7 @@ public class CheckoutTests : UiTest
     [Test]
     public async Task TC39_CustomerCanDownloadInvoiceAfterPurchase()
     {
-        var registerPage = new RegisterPage(Page);
+        using var accountApi = new TestAccountApi();
         var email = GenerateUniqueEmail();
         var accountCreated = false;
         string? invoicePath = null;
@@ -342,7 +319,7 @@ public class CheckoutTests : UiTest
         try
         {
             await PrepareRegisteredCheckoutAsync(
-                registerPage,
+                accountApi,
                 email,
                 () => accountCreated = true
             );
@@ -381,7 +358,8 @@ public class CheckoutTests : UiTest
             }
 
             await CleanupTestAccountAsync(
-                registerPage,
+                accountApi,
+                email,
                 accountCreated
             );
         }
@@ -391,14 +369,14 @@ public class CheckoutTests : UiTest
     [Test]
     public async Task TC40_CartIsEmptyAfterSuccessfulOrder()
     {
-        var registerPage = new RegisterPage(Page);
+        using var accountApi = new TestAccountApi();
         var email = GenerateUniqueEmail();
         var accountCreated = false;
 
         try
         {
             await PrepareRegisteredCheckoutAsync(
-                registerPage,
+                accountApi,
                 email,
                 () => accountCreated = true
             );
@@ -442,7 +420,8 @@ public class CheckoutTests : UiTest
         finally
         {
             await CleanupTestAccountAsync(
-                registerPage,
+                accountApi,
+                email,
                 accountCreated
             );
         }

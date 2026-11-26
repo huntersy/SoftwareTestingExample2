@@ -1,4 +1,3 @@
-
 using Microsoft.Playwright;
 using SoftwareTestingExample.Utilities;
 
@@ -77,6 +76,14 @@ public class LoginPage
         await LoginEmail.FillAsync(email);
         await LoginPassword.FillAsync(password);
         await LoginButton.ClickAsync();
+    }
+
+    public async Task WaitForLoggedInAsync()
+    {
+        await LoggedInAs.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+        });
     }
 
     public async Task<bool> IsInvalidLoginMessageVisibleAsync() =>

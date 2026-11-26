@@ -16,7 +16,8 @@ A C# browser automation framework built with **Microsoft Playwright for .NET**, 
 - Playwright tracing for every test and failure-only screenshots and trace archives.
 - Configurable base URL through the `BASE_URL` environment variable.
 - GitHub Actions workflow for automated build, browser setup, test execution, NUnit/TRX reporting, and artifact upload.
-- Automated test-account cleanup in registration and checkout scenarios where applicable.
+- Documented REST API test-account provisioning and cleanup for registered checkout scenarios; checkout authentication and all purchase steps remain browser-driven.
+- Dedicated UI registration coverage remains in TC33.
 
 ## Technology stack
 
@@ -75,7 +76,8 @@ Test classes define scenarios and assertions; `UiTest` provides the common Playw
 | `ProductDetailsPage` | Product information, quantity, and add-to-cart actions |
 | `CartPage` | Cart contents, quantities, totals, and item removal |
 | `LoginPage` | Login form and logged-in/logged-out state |
-| `RegisterPage` | Registration, account confirmation, and account deletion |
+| `RegisterPage` | UI registration and account confirmation |
+| `TestAccountApi` | Creates and deletes disposable checkout test accounts through the documented REST API |
 | `CheckoutPage` | Checkout details, addresses, payment, order confirmation, and invoice retrieval |
 
 ## Portfolio evidence
@@ -92,7 +94,7 @@ The verified run also confirmed that structured JSON test events were preserved 
 
 ## Automated test coverage
 
-The current repository contains **40 NUnit test methods across 8 test classes**.
+The current repository contains **40 NUnit test methods across 8 test classes**. The five registered-user checkout scenarios use the documented account API for disposable test-data setup and cleanup; login, cart, checkout, and purchase assertions remain UI-driven.
 
 | Test area | Test class | Tests |
 |---|---|---:|
@@ -355,6 +357,7 @@ SoftwareTestingExample2/
 │   ├── ShoppingCartTests.cs
 │   └── UiTests.cs
 ├── Utilities/
+│   ├── TestAccountApi.cs
 │   └── TestConfig.cs
 ├── SoftwareTestingExample.csproj
 ├── README.md
@@ -365,6 +368,7 @@ SoftwareTestingExample2/
 
 - This is an end-to-end UI automation project; Chromium is the browser installed by the current CI workflow.
 - Tests interact with a public practice website. Its availability, data, catalog, and interface can change independently of this repository.
+- Registered-user checkout tests use the site's documented `POST /api/createAccount` and `DELETE /api/deleteAccount` endpoints only for disposable test-data setup and cleanup. The user login and checkout journeys remain browser UI tests.
 - Registration and checkout tests create test accounts and perform actions on the practice application. Use only environments where such activity is permitted.
 - Payment details used by the checkout scenarios are synthetic test values for the practice site; do not use real payment information.
 - The project includes the Coverlet collector package, but the current workflow does not publish a code-coverage report.
