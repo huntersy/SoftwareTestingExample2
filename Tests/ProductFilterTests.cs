@@ -1,37 +1,10 @@
-
-using Microsoft.Playwright.NUnit;
-using NUnit.Framework;
-using SoftwareTestingExample.Pages;
-
+using Microsoft.Playwright.NUnit;using NUnit.Framework;using SoftwareTestingExample.Pages;using SoftwareTestingExample.TestData;using System.Globalization;
 namespace SoftwareTestingExample.Tests;
-
-[Parallelizable(ParallelScope.None)]
-public class ProductFilterTests : UiTest
+public class ProductFilterTests:UiTest
 {
-    [Test]
-    [Category("Smoke")]
-    public async Task TC12_WomenTopsCategoryDisplaysProducts()
-    {
-        var homePage = new HomePage(Page);
-
-        await homePage.NavigateAsync();
-        await homePage.SelectWomenTopsCategoryAsync();
-
-        var currentUrl = Page.Url;
-
-        var productCount =
-            await Page.Locator(".product-image-wrapper").CountAsync();
-
-        Assert.That(
-            currentUrl,
-            Does.Contain("/category_products/2"),
-            "The browser should navigate to the Women Tops category."
-        );
-
-        Assert.That(
-            productCount,
-            Is.GreaterThan(0),
-            "The Women Tops category should display products."
-        );
-    }
+ async Task<ProductsPage> Open(){var l=new LoginPage(Page);await l.NavigateAsync();await l.LoginAsync(TestUsers.Standard,TestUsers.Password);var p=new ProductsPage(Page);await p.IsInventoryVisibleAsync();return p;}
+ [Test,Category("Smoke")] public async Task TC18_SortNamesAscending(){var p=await Open();await p.SortAsync("az");Assert.That(await p.NamesAsync(),Is.Ordered.Using(StringComparer.Ordinal));}
+ [Test] public async Task TC19_SortNamesDescending(){var p=await Open();await p.SortAsync("za");Assert.That(await p.NamesAsync(),Is.Ordered.Descending.Using(StringComparer.Ordinal));}
+ [Test] public async Task TC20_SortPricesAscending(){var p=await Open();await p.SortAsync("lohi");var a=(await p.PricesAsync()).Select(x=>decimal.Parse(x.TrimStart('$'),CultureInfo.InvariantCulture));Assert.That(a,Is.Ordered.Ascending);}
+ [Test] public async Task TC21_SortPricesDescending(){var p=await Open();await p.SortAsync("hilo");var a=(await p.PricesAsync()).Select(x=>decimal.Parse(x.TrimStart('$'),CultureInfo.InvariantCulture));Assert.That(a,Is.Ordered.Descending);}
 }

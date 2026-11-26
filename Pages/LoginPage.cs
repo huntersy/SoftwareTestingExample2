@@ -1,104 +1,17 @@
 using Microsoft.Playwright;
-using SoftwareTestingExample.Utilities;
-
 namespace SoftwareTestingExample.Pages;
-
-public class LoginPage
+public class LoginPage:BasePage
 {
-    private readonly IPage _page;
-
-    private ILocator LoginHeading =>
-        _page.GetByRole(
-            AriaRole.Heading,
-            new() { Name = "Login to your account" }
-        );
-
-    private ILocator LoginEmail =>
-        _page.Locator("[data-qa='login-email']");
-
-    private ILocator LoginPassword =>
-        _page.Locator("[data-qa='login-password']");
-
-    private ILocator LoginButton =>
-    _page.Locator("[data-qa='login-button']");
-
-    private ILocator InvalidLoginMessage =>
-        _page.GetByText(
-            "Your email or password is incorrect!",
-            new() { Exact = true }
-        );
-
-    private ILocator LoggedInAs =>
-        _page.Locator("a").Filter(
-            new() { HasText = "Logged in as" }
-        );
-
-    private ILocator LogoutLink =>
-        _page.Locator("a[href='/logout']");
-
-    public LoginPage(IPage page)
-    {
-        _page = page;
-    }
-
-    public async Task NavigateAsync()
-    {
-        var loginUrl =
-            $"{TestConfig.BaseUrl.TrimEnd('/')}/login";
-
-        await _page.GotoAsync(
-            loginUrl,
-            new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.DOMContentLoaded,
-            }
-        );
-
-        await LoginHeading.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
-    }
-
-    public async Task<bool> IsLoginHeadingVisibleAsync() =>
-        await LoginHeading.IsVisibleAsync();
-
-    public async Task<bool> IsLoginEmailVisibleAsync() =>
-        await LoginEmail.IsVisibleAsync();
-
-    public async Task<bool> IsLoginPasswordVisibleAsync() =>
-        await LoginPassword.IsVisibleAsync();
-
-    public async Task LoginAsync(
-        string email,
-        string password)
-    {
-        await LoginEmail.FillAsync(email);
-        await LoginPassword.FillAsync(password);
-        await LoginButton.ClickAsync();
-    }
-
-    public async Task WaitForLoggedInAsync()
-    {
-        await LoggedInAs.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
-    }
-
-    public async Task<bool> IsInvalidLoginMessageVisibleAsync() =>
-        await InvalidLoginMessage.IsVisibleAsync();
-
-    public async Task<bool> IsLoggedInAsync() =>
-        await LoggedInAs.IsVisibleAsync();
-
-    public async Task LogoutAsync()
-    {
-        await LogoutLink.ClickAsync();
-
-        await LoginHeading.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
-    }
+ ILocator User=>Page.Locator("[data-test='username']");
+ ILocator Pass=>Page.Locator("[data-test='password']");
+ ILocator Submit=>Page.Locator("[data-test='login-button']");
+ ILocator Error=>Page.Locator("[data-test='error']");
+ public LoginPage(IPage p):base(p){}
+ public async Task NavigateAsync(){await GoAsync("/");await VisibleAsync(User);}
+ public Task<bool> IsUsernameVisibleAsync()=>User.IsVisibleAsync();
+ public Task<bool> IsPasswordVisibleAsync()=>Pass.IsVisibleAsync();
+ public Task<bool> IsLoginButtonVisibleAsync()=>Submit.IsVisibleAsync();
+ public async Task LoginAsync(string u,string p){await User.FillAsync(u);await Pass.FillAsync(p);await Submit.ClickAsync();}
+ public Task<bool> IsErrorVisibleAsync()=>Error.IsVisibleAsync();
+ public Task<string> GetErrorAsync()=>Error.InnerTextAsync();
 }
