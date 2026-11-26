@@ -52,27 +52,12 @@ public class ProductsPage
         var productsUrl =
             $"{TestConfig.BaseUrl.TrimEnd('/')}/products";
 
-        var response = await _page.GotoAsync(
+        await SafeNavigation.NavigateByGetAsync(
+            _page,
             productsUrl,
-            new PageGotoOptions
-            {
-                WaitUntil = WaitUntilState.DOMContentLoaded,
-            }
+            SearchInput,
+            "Products page"
         );
-
-        if (response is null ||
-            response.Status < 200 ||
-            response.Status >= 400)
-        {
-            throw new InvalidOperationException(
-                $"Products page navigation failed. HTTP status: {response?.Status}"
-            );
-        }
-
-        await SearchInput.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-        });
     }
 
     public async Task<bool> IsSearchInputVisibleAsync() =>

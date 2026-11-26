@@ -10,6 +10,52 @@ public static class SafeNavigation
 {
     private const int MaxAttempts = 3;
 
+    public static async Task NavigateByGetAsync(
+        IPage page,
+        string destinationUrl,
+        ILocator readyLocator,
+        string navigationName)
+    {
+        for (var attempt = 1; attempt <= MaxAttempts; attempt++)
+        {
+            var response = await page.GotoAsync(destinationUrl, new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.DOMContentLoaded,
+            });
+
+            if (response is null)
+            {
+                throw new InvalidOperationException(
+                    $"{navigationName} navigation completed without an HTTP response.");
+            }
+
+            if (response.Status == 429 || response.Status >= 500)
+            {
+                if (attempt == MaxAttempts)
+                {
+                    throw new InvalidOperationException(
+                        $"{navigationName} returned HTTP {response.Status} after {MaxAttempts} attempts.");
+                }
+
+                await page.WaitForTimeoutAsync(750 * attempt);
+                continue;
+            }
+
+            if (response.Status < 200 || response.Status >= 400)
+            {
+                throw new InvalidOperationException(
+                    $"{navigationName} failed with HTTP {response.Status}.");
+            }
+
+            await readyLocator.WaitForAsync(new()
+            {
+                State = WaitForSelectorState.Visible,
+            });
+
+            return;
+        }
+    }
+
     public static async Task NavigateByClickAsync(
         IPage page,
         ILocator navigationLink,
