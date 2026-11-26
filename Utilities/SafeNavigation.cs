@@ -19,7 +19,7 @@ public static class SafeNavigation
     {
         for (var attempt = 1; attempt <= MaxAttempts; attempt++)
         {
-            IResponse response;
+            IResponse? response;
 
             if (attempt == 1)
             {
@@ -54,6 +54,12 @@ public static class SafeNavigation
                 {
                     WaitUntil = WaitUntilState.DOMContentLoaded,
                 });
+            }
+
+            if (response is null)
+            {
+                throw new InvalidOperationException(
+                    $"{navigationName} navigation completed without an HTTP response.");
             }
 
             if (response.Status == 429 || response.Status >= 500)
