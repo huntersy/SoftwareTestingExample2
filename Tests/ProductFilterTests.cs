@@ -15,7 +15,7 @@ public class ProductFilterTests : UiTest
         await loginPage.LoginAsync(TestUsers.Standard, TestUsers.Password);
 
         var productsPage = new ProductsPage(Page);
-        await productsPage.IsInventoryVisibleAsync();
+        await productsPage.WaitForInventoryAsync();
         return productsPage;
     }
 
