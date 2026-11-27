@@ -1,10 +1,75 @@
-using Microsoft.Playwright.NUnit;using NUnit.Framework;using SoftwareTestingExample.Pages;using SoftwareTestingExample.TestData;using System.Globalization;
+using System.Globalization;
+using Microsoft.Playwright.NUnit;
+using NUnit.Framework;
+using SoftwareTestingExample.Pages;
+using SoftwareTestingExample.TestData;
+
 namespace SoftwareTestingExample.Tests;
-public class ProductFilterTests:UiTest
+
+public class ProductFilterTests : UiTest
 {
- async Task<ProductsPage> Open(){var l=new LoginPage(Page);await l.NavigateAsync();await l.LoginAsync(TestUsers.Standard,TestUsers.Password);var p=new ProductsPage(Page);await p.IsInventoryVisibleAsync();return p;}
- [Test,Category("Smoke")] public async Task TC18_SortNamesAscending(){var p=await Open();await p.SortAsync("az");Assert.That(await p.NamesAsync(),Is.Ordered.Using(StringComparer.Ordinal));}
- [Test] public async Task TC19_SortNamesDescending(){var p=await Open();await p.SortAsync("za");Assert.That(await p.NamesAsync(),Is.Ordered.Descending.Using(StringComparer.Ordinal));}
- [Test] public async Task TC20_SortPricesAscending(){var p=await Open();await p.SortAsync("lohi");var a=(await p.PricesAsync()).Select(x=>decimal.Parse(x.TrimStart('$'),CultureInfo.InvariantCulture));Assert.That(a,Is.Ordered.Ascending);}
- [Test] public async Task TC21_SortPricesDescending(){var p=await Open();await p.SortAsync("hilo");var a=(await p.PricesAsync()).Select(x=>decimal.Parse(x.TrimStart('$'),CultureInfo.InvariantCulture));Assert.That(a,Is.Ordered.Descending);}
+    private async Task<ProductsPage> OpenInventoryAsync()
+    {
+        var loginPage = new LoginPage(Page);
+        await loginPage.NavigateAsync();
+        await loginPage.LoginAsync(TestUsers.Standard, TestUsers.Password);
+
+        var productsPage = new ProductsPage(Page);
+        await productsPage.IsInventoryVisibleAsync();
+        return productsPage;
+    }
+
+    [Test, Category("Smoke")]
+    public async Task TC18_SortNamesAscending()
+    {
+        var productsPage = await OpenInventoryAsync();
+        await productsPage.SortAsync("az");
+
+        var actualNames = await productsPage.NamesAsync();
+        var expectedNames = actualNames.OrderBy(name => name, StringComparer.Ordinal).ToArray();
+
+        Assert.That(actualNames, Is.EqualTo(expectedNames),
+            "Product names should be sorted alphabetically from A to Z.");
+    }
+
+    [Test]
+    public async Task TC19_SortNamesDescending()
+    {
+        var productsPage = await OpenInventoryAsync();
+        await productsPage.SortAsync("za");
+
+        var actualNames = await productsPage.NamesAsync();
+        var expectedNames = actualNames.OrderByDescending(name => name, StringComparer.Ordinal).ToArray();
+
+        Assert.That(actualNames, Is.EqualTo(expectedNames),
+            "Product names should be sorted alphabetically from Z to A.");
+    }
+
+    [Test]
+    public async Task TC20_SortPricesAscending()
+    {
+        var productsPage = await OpenInventoryAsync();
+        await productsPage.SortAsync("lohi");
+
+        var actualPrices = (await productsPage.PricesAsync())
+            .Select(price => decimal.Parse(price.TrimStart('$'), CultureInfo.InvariantCulture))
+            .ToArray();
+
+        Assert.That(actualPrices, Is.Ordered.Ascending,
+            "Product prices should be sorted from lowest to highest.");
+    }
+
+    [Test]
+    public async Task TC21_SortPricesDescending()
+    {
+        var productsPage = await OpenInventoryAsync();
+        await productsPage.SortAsync("hilo");
+
+        var actualPrices = (await productsPage.PricesAsync())
+            .Select(price => decimal.Parse(price.TrimStart('$'), CultureInfo.InvariantCulture))
+            .ToArray();
+
+        Assert.That(actualPrices, Is.Ordered.Descending,
+            "Product prices should be sorted from highest to lowest.");
+    }
 }
