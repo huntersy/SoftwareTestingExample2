@@ -8,6 +8,7 @@ public class LoginPage:BasePage
  ILocator Error=>Page.Locator("[data-test='error']");
  public LoginPage(IPage p):base(p){}
  public async Task NavigateAsync(){await GoAsync("/");await VisibleAsync(User);}
+ public Task WaitForLoginFormAsync()=>VisibleAsync(User);
  public Task<bool> IsUsernameVisibleAsync()=>User.IsVisibleAsync();
  public Task<bool> IsPasswordVisibleAsync()=>Pass.IsVisibleAsync();
  public Task<bool> IsLoginButtonVisibleAsync()=>Submit.IsVisibleAsync();
