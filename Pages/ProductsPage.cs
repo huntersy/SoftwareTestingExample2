@@ -5,12 +5,13 @@ public class ProductsPage:BasePage
  ILocator Cards=>Page.Locator(".inventory_item");
  ILocator Names=>Page.Locator(".inventory_item_name");
  ILocator Prices=>Page.Locator(".inventory_item_price");
- ILocator Sort=>Page.Locator("[data-test='product_sort_container']");
+ ILocator Sort=>Page.Locator("[data-test='product-sort-container']");
  ILocator Cart=>Page.Locator(".shopping_cart_link");
  ILocator Badge=>Page.Locator(".shopping_cart_badge");
  public ProductsPage(IPage p):base(p){}
  public async Task NavigateAsync(){await GoAsync("/inventory.html");await VisibleAsync(Cards.First);}
  public Task<bool> IsInventoryVisibleAsync()=>Cards.First.IsVisibleAsync();
+ public async Task WaitForInventoryAsync(){await VisibleAsync(Cards.First);await VisibleAsync(Sort);}
  public Task<string> GetTitleAsync()=>Page.Locator(".title").InnerTextAsync();
  public Task<int> CountAsync()=>Cards.CountAsync();
  public Task<IReadOnlyList<string>> NamesAsync()=>Names.AllInnerTextsAsync();
