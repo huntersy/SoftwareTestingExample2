@@ -2,7 +2,7 @@ using Microsoft.Playwright.NUnit;using NUnit.Framework;using SoftwareTestingExam
 namespace SoftwareTestingExample.Tests;
 public class ProductSearchTests:UiTest
 {
- async Task<ProductsPage> Open(){var l=new LoginPage(Page);await l.NavigateAsync();await l.LoginAsync(TestUsers.Standard,TestUsers.Password);var p=new ProductsPage(Page);await p.IsInventoryVisibleAsync();return p;}
+ async Task<ProductsPage> Open(){var l=new LoginPage(Page);await l.NavigateAsync();await l.LoginAsync(TestUsers.Standard,TestUsers.Password);var p=new ProductsPage(Page);await p.WaitForInventoryAsync();return p;}
  [Test,Category("Smoke")] public async Task TC06_BackpackIsListed(){Assert.That(await (await Open()).NamesAsync(),Does.Contain(TestUsers.Backpack));}
  [Test] public async Task TC07_BikeLightIsListed(){Assert.That(await (await Open()).NamesAsync(),Does.Contain(TestUsers.BikeLight));}
  [Test] public async Task TC08_BoltTShirtIsListed(){Assert.That(await (await Open()).NamesAsync(),Does.Contain("Sauce Labs Bolt T-Shirt"));}
